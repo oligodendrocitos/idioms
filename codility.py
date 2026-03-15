@@ -64,6 +64,25 @@ def solution(A):
 solution(A)
 
 
+def solution(A):
+    n = len(A)
+    maxX = n+1 # if perfect array, largest missing elem is this
+
+    seen = {}
+
+    for i in A:
+        seen[i] = seen.get(i,0) +1
+
+    
+    for j in range(1,maxX):
+        if j not in seen: #not j in seen.keys():
+            return j
+
+    return maxX
+    
+
+
+
 
 #%% 1. Lesson 1 ------------------------------------------------------------
 """
@@ -348,6 +367,213 @@ def solution(A):
     return 1
 
 
+#%% 4. maxcounters
 
+def solution(N, A):
+    A = [3,4,4,6,1,4,4]
+
+
+    # what is the N type? 
+    # oh it's just an int. Thanks.
+    # n = len(N)
+    # N
+
+    counts = {i:0 for i in range(1,N+1)}
+    for i,k in enumerate(A):
+
+        if 1<=k<=n:
+            # increase N
+
+        elif k == n+1:
+            # set all counters to max
+
+
+
+def solution(N, A):
+    # A = [3,4,4,6,1,4,4]
+
+    if not A:
+        return []
+
+    # Calculate the values of counters after applying all alternating operations:
+    # increase counter by 1; set value of all counters to current maximum
+    #  init empty counter
+    C = [0] * N
+    currmax = 0
+    base = 0
+
+    for a in A:
+        if 1 <= a <= N:
+            # if counter lower than curr base, increase it,
+            # increase counter by 1, 
+            # if count > curr max, update currmax
+            ix = a-1
+            if C[ix]<base:
+                C[ix]=base
+            C[ix] +=1 
+            if C[ix]>currmax:
+                currmax = C[ix]
+
+        elif a==N+1:
+            # increase current baseline
+            base = currmax
+
+
+    # now check that all values are set to base?
+    for i in range(N):
+        if C[i]<base:
+            C[i]=base
+
+    return C
+
+
+#%% 4. missing int
+
+
+#%% 5. passing car
+# def solution(A):
+#     # 0 east
+#     # 1 west
+
+#     # passing:
+#     # if a[i] = 0 or 1 and a[j] is != a[i]
+#     # 
+
+#     pairs=0
+
+#     n=len(A)
+#     if n==1:
+#         return 0
+#     if n==0:
+#         return 0
+
+        
+#     for i in range(1,n):
+#         if A[i]!=A[i-1]:
+#             pairs+=1
+
+#     return pairs
+
+
+
+def solution(A):
+    # 0 east
+    # 1 west
+    # passing:
+    # if a[i] = 0 or 1 and a[j] is != a[i] and ai<aj 
+
+    pairs=0
+    east = 0
+
+    n=len(A)
+    if n==1:
+        return 0
+    if n==0:
+        return 0
+
+    # if value ==0, increment east
+    # if value==1, every east car seen so far is going to form a pair 
+    for i in A:
+        if i==0:
+            east+=1
+        else:
+            pairs += east
+            if pairs> 1_000_000_000:
+                return -1
+
+    return pairs
+
+
+#%% 5. countdiv
+
+def solution(A, B, K):
+
+    # return number of integers in the range A..B that are divisible by K
+
+    top = B//K
+    btm = (A-1)//K
+    # print(top)
+    # print(btm)
+    res = top-btm # ?
+
+    return res
+
+# ???
+
+#%% 5. genomic range query
+#%% 5. min avg two slice
+
+def solution(A):
+    # P<Q<N is slice
+    # at least 2 elems
+
+    # sliding window - start from right? 
+    # would I ever want a slice with more than 2 elements?
+    # yes ? [5,1,5,6,1,6] < if outer values increase, one of the inner pairs with 1 is better
+    # if inner values increase, one of the outer pairs is better>> any pair with 1 is at least as good as the 4. 
+    # the only other possibility is sth like this:
+    # [3,1,1,]
+    N = len(A)
+
+    if N==2:
+        return 0
+    if N<2:
+        return 0 
+
+    # avg = se / (l-r+1)
+    best_ix = 0
+    best_sum = A[0]+A[1]
+    best_den = 2
+
+    # l=0
+    # check 2s
+    s2 = best_sum
+    for i in range(N-1):
+        if i>0:
+            # remove value leaving window
+            s2 = s2 - A[i-1] + A[i+1]
+        if s2<best_sum:
+            best_sum = s2
+            best_ix = i
+
+    
+    s3 = A[0]+A[1]+A[2]
+    for j in range(N-2):
+        if j>0:
+            s3 = s3-A[j-1] + A[j+2]
+        if s3 * best_den < best_sum * 3: 
+            best_sum, best_den, best_ix = s3, 3, j
+
+    return best_ix
+
+#%% 6. distinct
+def solution(A):
+    # should I use set or dict??
+    elems = set()
+
+    for i in A:
+        elems.add(i)
+
+    return len(elems)
+
+
+#%% 6. max prod of three
+
+def solution(A):
+    A.sort()
+    n = len(A)
+    return max(A[-1] * A[-2] * A[-3], A[0] * A[1] * A[-1])
+
+
+# or a pernickety version
+# 
+
+#%% 6. triangle
+#%% 6. n disc intersections
+#%% 7. brackets
+#%% 7. fish
+#%% 7. nesting
+#%% 7. stonewall
+#%% 8. leader
 
 

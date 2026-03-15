@@ -519,3 +519,12 @@ X_centered3 = X - col_means.reshape(1, -1)
 
 X.T @ X
 
+
+
+# cosyne similarity = dot  / norm
+
+a = np.array([1,2,3])
+b = np.array([4,5,6])
+
+cos_sim = np.dot(a,b) / (np.linalg.norm(a) * np.linalg.norm(b))
+
