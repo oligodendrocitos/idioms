@@ -1,4 +1,123 @@
-""" two pointers """
+""" two pointers  
+- - - - - - - - - - - - - - - - - - - -
+1. When Should You Think Two Pointers?
+
+- Array is sorted
+- You’re looking for pairs
+- You need to merge
+- You’re removing duplicates
+- You’re shrinking from both ends
+- Brute force would be nested loops
+
+If you catch yourself thinking:
+"I need to compare elements relative to each other in a sorted structure"
+That's two pointers.
+
+
+- - - - - - - - - - - - - - - - - - - -
+2. The 4 Main Two-Pointer Variants
+
+
+Variant A — Opposite Ends (Converging)
+
+    Used when:
+     - Sorted array
+     - Looking for pair relationships
+     - Maximization/minimization problems
+    
+    Examples:
+     - Two Sum II (sorted)
+     - Container With Most Water
+     - 3Sum (inner loop)
+     - Valid palindrome
+    
+    Mental template:
+    l, r = 0, len(arr) - 1
+    while l < r:
+        if condition:
+            l += 1
+        else:
+            r -= 1
+    
+    You adjust:
+     - the condition
+     - what happens inside
+    
+    
+    
+Variant B — Same Direction (Slow / Fast)
+    
+    Used for:
+     - Removing elements in-place
+     - Deduplicating sorted array
+     - Partitioning
+    
+    Examples:
+     - Remove duplicates from sorted array
+     - Move zeros
+     - Partition array
+     
+    Mental template:
+    slow = 0
+    for fast in range(len(arr)):
+        if keep(arr[fast]):
+            arr[slow] = arr[fast]
+            slow += 1
+    
+    This pattern avoids extra space.
+
+
+
+Variant C — Merge From End (Your Example)
+    
+    Used when:
+        - You need to merge in-place
+        - One array has buffer at the end
+    
+    Example:
+     - Merge Sorted Array
+    
+    Mental template:
+    i, j, k = m-1, n-1, m+n-1
+    while i >= 0 and j >= 0:
+        if nums1[i] > nums2[j]:
+            nums1[k] = nums1[i]
+            i -= 1
+        else:
+            nums1[k] = nums2[j]
+            j -= 1
+        k -= 1
+    
+    Then handle leftovers.
+    
+    This is just a specialized opposite-ends case.
+
+
+
+- - - - - - - - - - - - - - - - - - - -
+Think of slow as:
+
+"the length of the valid prefix"
+
+So:
+
+    [ VALID PART | GARBAGE ]
+
+We are building:
+
+    [1,1,2,2,3 | ...]
+
+Everything after slow doesn't matter.
+
+
+Or:
+    [ valid region | unknown region ]
+
+Where:
+    slow = boundary
+    fast = scanner
+
+"""
 
 
 
@@ -22,13 +141,13 @@
 # Stop when they cross.
 
 arr = [2,5,7,9,12]
-# arr = [0,2,2,7,9,12]
+arr = [0,2,2,7,9,12]
 
 def reverse_array(arr):
     l = 0
     r = len(arr)-1
     
-    while l<=r:
+    while l<r:
         arr[l], arr[r] = arr[r], arr[l]
         
         l+=1
@@ -39,10 +158,27 @@ def reverse_array(arr):
 
         
         
+    
+
 reverse_array(arr)
 print(arr)
 
         
+#%% 1.5 without simultaneous assignment
+arr=[1,2,3,4,5]
+
+def reverse(arr):
+    l,r = 0,len(arr)-1
+    
+    while l<r:
+        tmp=arr[l]
+        arr[l]=arr[r]
+        arr[r]=tmp
+        r-=1
+        l+=1
+        
+
+reverse(arr)
 
 #%% 2. valid palindrome
 # given string, return True if it reads the same way forward and backward
@@ -59,17 +195,17 @@ s = "hello!"
 # s = "aaaaa"
 
 def is_palindrome(s):
-    l = 0
-    r = len(s)-1
+    l,r = 0, len(s)-1
     
     while l<r:
-        if s[l]!=s[r]:
+        if s[l] != s[r]:
             return False
         
         l+=1
         r-=1
         
     return True
+
 
 
 is_palindrome(s)
@@ -86,8 +222,8 @@ is_palindrome(s)
 
 nums = [2,7,11,15]
 target = 199 # none
-# target = 13 # 0,2
-# target = 18 # 1,2
+target = 13 # 0,2
+target = 18 # 1,2
 
 def two_sum(nums,target):
     l=0
@@ -97,15 +233,17 @@ def two_sum(nums,target):
         res = nums[l]+nums[r]
         if res==target:
             return (l,r)
-        
         elif res<target:
             l+=1
-            
         else:
             r-=1
             
     return None
 
+
+
+
+        
 
 
 foo = two_sum(nums, target)
@@ -119,7 +257,29 @@ print(foo)
 # slow = position of next unique spot
 # fast scans
 # When new value appears -> write it at slow
-# 
+
+# 1. loop through indices starting from 1
+# 2. compare numbers
+# - if number @ fast is the same as number @ slow, nothing happens (fast increases by 1)
+# - if numbers are different, slow increases by 1, and the new value gets written
+
+# slow = points to the last unique element position
+# fast = scans ahead
+# When new value appears -> increase & write it at slow
+
+
+# 0 1 2 3 4    s=0, f=1
+# 3 3 9 7 1 -> s=0, f=2
+# _   _
+# 3 3 9 7 1    s!=f, increase s, put 9@s
+# 3 9 9 7 1 -> s=1, f=3
+#   _   _
+# 3 9 9 7 1    s!=f
+# 3 9 7 7 1 -> s=2, f=4
+#     _   _   
+# 3 9 7 7 1    s!=f
+# 3 9 7 1 1 -> END
+
 
 nums = [1,2,2,3,4,5,5,6]
 #         0,1,2,3,4,5,6,7 
@@ -128,21 +288,42 @@ nums = [1,2,2,3,4,5,5,6]
 
 
 def remove_dupes(nums):
-    slow = 0
-    # fast = 0
+    slow=0
     
     for fast in range(1,len(nums)):
-        if nums[fast]!=nums[slow]:
-            slow+=1
+        if nums[fast] != nums[slow]:
+            slow += 1
             nums[slow]=nums[fast]
             
-    print(f"{slow} {fast}")
-    return nums
+            
+    # print(f"{slow} {fast}")
+    print(f"{nums}")
+    return slow+1
+
 
 
 
 remove_dupes(nums)
     
+
+
+# alternative implementation
+# compare adjacent elements (fast vs fast-1)
+# no reasoning about slow in the condition
+
+def remove_dupes(nums):
+    if not nums:
+        return 0
+    
+    slow=1
+    
+    for fast in range(1, len(nums)):
+        if nums[fast] != nums[fast-1]:
+            nums[slow] = nums[fast]
+            
+            slow += 1
+
+
 
 #%% 5. move zeros
 # move all zeros to end of array while maintaining relative order of non-zero elements
@@ -154,7 +335,20 @@ remove_dupes(nums)
 # fast and slow start at the same spot
 
 nums = [0,1,0,3,12]
-nums = [0,1,0,0,3,12,0,0]
+nums = [0,1,0,0,3,12,1,0]
+#      [0,1,2,3,4,5, 6,7]
+
+# 0,1,2,3,4
+# 0,1,0,3,12 f=[0] 
+# 0,1,0,3,12 f=[1] move 1->[0] 
+# 1,1,0,3,12 f=[2]
+# 1,1,0,3,12 f=[3] move 3->[1]
+# 1,3,0,3,12 f=[4] move 12->[2]
+# 1,3,12,3,12 END
+
+# 1. start at ix 0
+# 2. if number at fast ix isn't a zero, put it in slow AND increase slow index
+
 
 def move_zeros(nums):
     slow=0
@@ -163,44 +357,213 @@ def move_zeros(nums):
         if nums[fast]!=0:
             nums[slow] = nums[fast]
             slow+=1
-    
-    for i in range(slow+1,len(nums)-1):
+            
+    for i in range(slow, len(nums)):
         nums[i] = 0
         
     return nums
-        
-
+            
+    
         
 move_zeros(nums)
 print(nums)
 
 
-############################################################################
-############################################################################
-############################################################################
-############################################################################
-############################################################################
-############################################################################
-############################################################################
-#%% 1. reverse array without simultaneous assignment
+# alternative implementation
+# instead of write and overwrite, 
+# swap non-zero forward
+nums = [0,1,0,0,3,12,1,0]
+#      [0,1,2,3,4,5, 6,7]
 
-arr=[1,2,3,4,5]
-
-def reverse(arr):
-
-        
-reverse(arr)
+def move_zeros(nums):
+    slow = 0
     
-#%% 2. remove dupes and replace them with 0
+    for fast in range(len(nums)):
+        if nums[fast] != 0:
+            nums[slow], nums[fast] = nums[fast], nums[slow]
+            slow += 1
 
-arr = [1,2,3,3,4]
-arr = [1,2,2,3,3,4]
 
-def remove_dupes_with_zero(arr):
 
-        
-remove_dupes_with_zero(arr)
-print(arr)
+# TODO
+# look at more problems like these two, 
+# you don't have a good sense of why the solution differs the way
+# it does between them. 
+
+#%% 6. remove all instances
+# remove all instances of val in-place
+# return new length
+# nums = [3,2,2,3], val = 3 -> [2,2]
+
+nums = [3,2,2,3]
+val=3
+# 3 2 2 3
+# 0 1 2 3
+
+# slow points to last non-del val spot
+# fast scans
+    
+def remove_all_instances(nums, val):
+    slow=0
+    
+    for fast in range(len(nums)):
+        if nums[fast]!=val:
+            nums[slow] = nums[fast]
+            slow+=1
+            
+    print(nums)
+    return slow
+
+remove_all_instances(nums, val)
+
+
+# %% 7. Remove all but 2 copies (sorted array)
+# [1,1,1,2,2,3] -> [1,1,2,2,3]
+
+# keep an element if fast-2
+nums = [1,1,1,2,2,3]
+# nums = [0,1,1,2,2,3]
+# nums = [0,1,1,2,2,2,2,3]
+#  1 1 1 2 2 3
+#  0 1 2 3 4 5
+
+# 1 1 2 2 2 3 f=3 
+# 0 1 2 3 4 5 0==2, move 3 to 2
+
+# 1 1 2 2 2 3 f=4 
+# 0 1 2 3 4 5 
+
+# 1 1 2 2 2 3 f=5 
+# 0 1 2 3 4 5 4==2, move 5 to 4
+
+# 1 1 1 2 2 3 f=2, f==f-2, s=2
+# 1 1 2 2 2 3 f=3, f!=f-2  f>>s
+# 1 1 2 2 2 3 f=4, f==f-2, s=4
+# 1 1 2 2 3 3 f=5, f!=f-2  f>>s
+
+#  possible array starts: 
+# [1,1,1] [0,1,1] [0,0,1] [0,1,2]
+# in any of these cases, first two copies don'ŧ matter in relation to each other (!). 
+# earliest possible element to replace:
+
+    
+def remove_duplicates_allow_2(nums):
+    if len(nums) <= 2:
+        return len(nums)
+    
+    slow = 2
+    
+    for fast in range(2, len(nums)):
+        if nums[fast] != nums[slow - 2]:
+            nums[slow] = nums[fast]
+            slow += 1
+            
+    nums[:] = nums[:slow]   # shrink the list in place
+    print(nums)
+    return slow
+
+remove_duplicates_allow_2(nums)
+
+#%% 8. Move all negatives to the left (order preserved)
+# [1,-1,3,-2,0] -> [-1,-2,1,3,0]
+
+nums = [1,-1,3,-2,0]
+
+# Option 1: Use extra space
+# This is the simplest and most common in Python.
+def move_negatives_left(nums):
+    negatives = [x for x in nums if x < 0]
+    non_negatives = [x for x in nums if x >= 0]
+    nums[:] = negatives + non_negatives
+    return nums
+# [1, -1, 3, -2, 0] -> [-1, -2, 1, 3, 0]
+
+
+# Option 2: In-place stable version
+# If you want to do it in-place, you can insert each negative where it belongs and shift the block of positives right by one.
+def move_negatives_left(nums):
+    slow = 0
+    for fast in range(len(nums)):
+        if nums[fast] < 0:
+            temp = nums[fast]
+            i = fast
+            while i > slow:
+                nums[i] = nums[i - 1]
+                i -= 1
+            nums[slow] = temp
+            slow += 1
+    return nums
+
+
+move_negatives_left(nums)
+
+
+
+#%% 9. Partition array by pivot (like quicksort step)
+# nums = [3,2,1,5,6,4], pivot = 3
+# -> [2,1,3,5,6,4] (order of groups matters)
+nums = [3,2,1,5,6,4]
+
+
+nums = [9,12,5,10,14,3,10]
+pivot = 10
+# output: [9,5,3,10,10,12,14]
+
+# 1) Partition array by pivot
+# There are two common versions of this problem:
+# A. Stable partition
+# You must keep the original relative order of elements less than, equal to, and greater than the pivot.
+# Mental model:
+#     first collect all < pivot
+#     then all == pivot
+#     then all > pivot
+# This is much easier than trying to do it in-place while preserving order.
+
+
+def partition_array(nums, pivot):
+    less = [x for x in nums if x < pivot]
+    equal = [x for x in nums if x == pivot]
+    greater = [x for x in nums if x > pivot]
+    nums[:] = less + equal + greater
+    return nums
+
+
+# B. In-place partition, order not preserved
+# Sometimes the problem only asks you to partition, not preserve order.
+# Then you can use two pointers:
+def partition_array_inplace(nums, pivot):
+    i = 0
+    for j in range(len(nums)):
+        if nums[j] < pivot:
+            nums[i], nums[j] = nums[j], nums[i]
+            i += 1
+    return nums
+
+
+
+
+#%% 10. Sort colors (Dutch national flag)
+# [2,0,2,1,1,0] -> [0,0,1,1,2,2]
+
+nums = [2,0,2,1,1,0]
+
+def sort_colors(nums):
+    low = 0
+    mid = 0
+    high = len(nums) - 1
+
+    while mid <= high:
+        if nums[mid] == 0:
+            nums[low], nums[mid] = nums[mid], nums[low]
+            low += 1
+            mid += 1
+        elif nums[mid] == 1:
+            mid += 1
+        else:
+            nums[mid], nums[high] = nums[high], nums[mid]
+            high -= 1
+            
+            
     
 
 ############################################################################
@@ -314,6 +677,10 @@ def max_ar(height: List[int]) -> int:
 max_ar(h)
 
 
+
+
+
+
 #%% 3. 3Sum
 # given array nums, return all unique triplets [a,b,c]
 # such that a+b+c == 0
@@ -345,6 +712,8 @@ nums = [0,0,0,0]
 # Expected: [[0,0,0]]   # only one unique triplet
 nums = [-2,0,1,1,2]
 # Expected (order may vary): [[-2,0,2], [-2,1,1]]
+
+# if we're skipping first duplicates, doesn't that mean we wouldn't catch -2,1,1?
 
         
 def three_sum(nums: List[int]) -> List[List[int]]:
@@ -383,10 +752,12 @@ def three_sum(nums: List[int]) -> List[List[int]]:
         
         
     
-three_sum(nums)
-    
+
+# [0 1 2 3 4 5 6 7]
 
     
+
+three_sum(nums)
 #%% 3Sum closest
 # Modify to solve 3Sum Closest (find triplet sum closest to target). 
 # Same outer loop + two-pointer idea; keep track of best diff.
@@ -571,6 +942,34 @@ nums = [-3, -3, -2, -1, 0, 1, 2,2,2]
 # nums = [-3, -1,-1, 2,2,2]
 # nums = [-3, -1,-1,-1,1,1,2,2,2]
 sum4(nums)
+
+#%% kSum visual
+# kSum is just "keep reducing the problem"
+#
+# k=4:
+#   fix one number
+#   solve 3Sum on the remainder
+#
+# k=3:
+#   fix one number
+#   solve 2Sum on the remainder
+#
+# k=2:
+#   use the standard l/r two-pointer scan
+#
+# picture:
+# kSum(nums, 4, target, start)
+#   -> choose nums[i]
+#   -> kSum(nums, 3, target - nums[i], i+1)
+#       -> choose nums[j]
+#       -> kSum(nums, 2, target - nums[i] - nums[j], j+1)
+#           -> l/r scan
+#
+# base case:
+# 2Sum in sorted array
+#   if sum too small -> l++
+#   if sum too big   -> r--
+#   if equal         -> record pair
 
 #%% Ksum
 

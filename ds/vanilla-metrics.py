@@ -1279,6 +1279,55 @@ ex = (2*0.5) + (4*0.25) + (6*0.25) # = 3.5
 # which I guess is useful because linear regression formula needs variance, 
 # but what does the inverse do and why do we then multiply by XT?
 
+#%% Mean, covariance, variance, sd from a probability distribution 
+"""
+COV(X,Y) = E[XY] - E[X]E[Y]
+E[X] = SUM(x_i * p_i)
+E[Y] = SUM(y_i * p_i)
+E[XY] = SUM(x_i * y_i * p_i)
+"""
+X = [0, 0, 1, 1]
+Y = [1, 2, 1, 2]
+P = [0.3, 0.25, 0.15, 0.3]
+
+eX = 0*0.3 + 0*0.25 + 0.15*1 + 0.3*1
+eY = 1*0.3 + 2*0.25 + 0.15*1 + 0.3*2
+
+eXY = 0*1*0.3 + 0*2*0.25 + 1*1*0.25 + 1*2*0.3
+covXY = eXY - eX*eY
+
+
+# Variance
+# Var(X) = E(X**2) - (E[X])**2
+# because variance is 
+# Var(x) = E[(x-mux)^2] ; (more like the standard variance formula)
+# expanding the square:
+# Var(x) = E[x^2 - 2x*mux + mux^2]
+# but:
+    # - mux = E[x]
+    # - E[x] is linear, meaning:
+    # E[aA + bB + c] = aE[A] + bE[B] + c   for constants a,b,c
+# therefore:
+# Var[x] = E[x^2] - (E[x])^2
+
+# or
+# Var(X) = Cov(X,X)
+# because plugged in the covariance equation:
+# Cov(X,X) = E[XX] - E[X]E[X]
+#          = E[X*X] - E[X]E[X] 
+
+eX2 = [(x*x)*p for x,p in zip(X,P)]
+varx = eX2 - (eX)**2
+
+
+
+
+
+
+
+
+
+
 
 #%%
 

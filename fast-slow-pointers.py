@@ -145,7 +145,7 @@ def find_duplicate(nums):
 
  """
 
-#%% linked list
+#%% 1. linked list
 class ListNode:
     def __init__(self, val=0, next=None):
         self.val = val
@@ -185,7 +185,7 @@ while curr:
 # 1 → 2 → 3 → None
 # into
 # 3 → 2 → 1 → None
-#%%
+#%% 2. reverse linked list
 
 def reverse_list(head): # assumes you know the starting node!
     prev=None
@@ -241,7 +241,7 @@ def reverse_list(head):
     return new_head
 
 
-#%% # 1. Linked List Cycle (easy) 
+#%% 3. Linked List Cycle (easy) 
 # detect if cycle exists. (Template 1)
 
 class ListNode:
@@ -290,13 +290,12 @@ def has_cycle(head):
 
 
 
-def has_cycle(head): 
      
 
 has_cycle(head)
 
 
-#%% 2. Middle of the Linked List (easy) — return mid node. (Template 2)
+#%% 4. Middle of the Linked List (easy) — return mid node. (Template 2)
 # Implement middle_node, run on even length (4 nodes) and odd (5 nodes).
 
 # even length (4 nodes) 
@@ -342,7 +341,7 @@ def middle_node(head):
 
 middle_node(head)
 
-#%% # 3. Linked List Cycle II (medium) 
+#%% 5. Linked List Cycle II (medium) 
 # — return entry node of cycle. (Template 3)
 # Phase 1: detect meeting
 # Phase 2: reset one pointer to head
@@ -397,7 +396,7 @@ def cycle_start(head):
 cycle_start(head)
 # print(cycle_start(head).val)
     
-#%% 4. Find the Duplicate Number (medium) 
+#%% 6. Find the Duplicate Number (medium) 
 # — treat array as linked list. (Template 4)
 # Given:
 # nums has length n+1
@@ -414,6 +413,33 @@ arr = [1, 3, 5, 4, 5, 2]
 # as a pointer.
 # This forms a cycle.
 # Use fast/slow to find duplicate.
+
+
+# [1, 3, 4, 2, 4]
+#  0  1  2  3  4
+# 1. T=1 H=1 >>   a[T]=3  a[H]=3 a[3]=2 
+# 2. T=3 H=2 >>   a[T]=2  a[H]=4 a[4]=4 
+# 2. T=2 H=4 >>   a[T]=4  a[H]=4 a[4]=4  >> T==H >> END
+
+# [3, 2, 1, 3, 4]
+#  0  1  2  3  4
+# 1. T=3 H=3 >>   a[T]=3  a[H]=3 a[3]=3 
+# 2. T=3 H=3 >>   a[T]=3  a[H]=3 a[3]=3  >> T==H >> END
+
+
+# if there's a 0
+# [1, 3, 4, 0, 4]
+#  0  1  2  3  4
+
+
+# THINK OF THIS AS A GRAPH
+# nums = [3, 2, 1, 3, 4]
+# index:  0  1  2  3  4
+# edges: 0->3, 1->2, 2->1, 3->3, 4->4
+
+# DUPE = ELEMENT THAT GETS POINTED TO TWICE
+# Since a dupe, by definition, appears in the list twice, 
+# there will be two indices referring to it. (e.g. above, 0->3 3->3)
 
 def find_dupe(arr):
     # 1. find intersection
@@ -442,11 +468,37 @@ def find_dupe(arr):
 
 find_dupe(arr)
 
-#%% 4.5 Find Dupe (Chatty's version with explanation)
+#%% 6.5 Find Dupe (Chatty's version with explanation)
+# 1. Use two pointers tortoise and hare. Start both at nums[0].
+# 2. Move tortoise one step: tortoise = nums[tortoise]. Move hare two steps: hare = nums[nums[hare]]. Repeat until they meet.
+# 3. When they meet, set tortoise = nums[0] again, keep hare at meeting point.
+# 4. Move both one step at a time: tortoise = nums[tortoise], hare = nums[hare], until they meet again. That meeting value is the duplicate.
+
+# The problem guarantees at least one duplicate and that all values are in 1..n. The algorithm relies on that.
+# If constraints were different (e.g., values outside 1..n or no guaranteed duplicate), the mapping-to-indices trick might not apply.
+# This approach returns a duplicate (if there are multiple, it finds one of them).
+
+from typing import List
+
+def find_duplicate(nums: List[int]) -> int:
+    # Phase 1: find intersection
+    tortoise = nums[0]
+    hare = nums[0]
+    while True:
+        tortoise = nums[tortoise]
+        hare = nums[nums[hare]]
+        if tortoise == hare:
+            break
+
+    # Phase 2: find entrance to the cycle
+    tortoise = nums[0]
+    while tortoise != hare:
+        tortoise = nums[tortoise]
+        hare = nums[hare]
+    return hare
 
 
-
-#%% 5. Happy Number (easy) 
+#%% 7. Happy Number (easy) 
 # — use tortoise & hare to detect cycle in sequence of sum-of-squares (or use seen set).
 # Repeatedly replace number with sum of squares of digits.
 # Eventually:
@@ -456,6 +508,162 @@ find_dupe(arr)
 # This generalizes cycle detection beyond linked lists.
 
 
+# You start with a number n. Repeatedly replace it with:
+# the sum of the squares of its digits
+
+# Example:
+# 19 -> 1^2 + 9^2 = 82
+# 82 -> 8^2 + 2^2 = 68
+# 68 -> 6^2 + 8^2 = 100
+# 100 -> 1
+
+# A number is happy if this process eventually reaches 1.
+# If it never reaches 1, it must fall into a cycle.
+
+# Why fast/slow works here:
+# The sequence of numbers is like a linked list:
+#     each number points to the next number in the sequence
+#     either the sequence ends at 1
+#     or it repeats forever in a cycle
+
+# So we can use the same cycle-detection idea:
+#     slow moves one step
+#     fast moves two steps
+
+# If fast == slow, we found a cycle.
+# If fast reaches 1, the number is happy.
+
+# I. how to get digits
+x = 4232
+# digit = x % 10 # last digit (remainder of 10s)
+# x //= 10       # removes last digit (full 10s)
+
+
+seq=[]
+n = 253
+tortoise = 2*2 + 5*5 + 3*3
+
+
+def next_num(x):
+    # get next sum of sq of digits of x
+    ssq = 0
+    st = "SSQ: "
+    st2=f"DIG: {x} "
+    while x>0:
+        digit = x % 10
+        ssq += digit*digit
+        st = st + f"{(digit*digit)} + "
+        
+        x //= 10
+        st2 = st2+f"{x} "
+        
+        
+    st = st[:-2] + f"= {ssq}"
+    print(st)
+    print(st2)
+    return ssq
+
+
+next_num(x)
+
+def happy_number(x):
+    # You start with a number n. Repeatedly replace it with:
+    # the sum of the squares of its digits
+    # A number is happy if this process eventually reaches 1.
+    # If it never reaches 1, it must fall into a cycle.
+    tortoise = x
+    hare = x
+    
+    while True:
+        tortoise = next_num(tortoise)
+        hare = next_num(next_num(hare))
+        
+        if tortoise==1 or hare==1:
+            return True
+        if tortoise==hare:
+            return False
+        
+        
+happy_number(x)
+
+
+#%% 7.5 Chatty's solution: 
+    
+class Solution:
+    def isHappy(self, n: int) -> bool:
+        seen = set()
+
+        def next_num(x):
+            total = 0
+            while x > 0:
+                digit = x % 10
+                total += digit * digit
+                x //= 10
+            return total
+
+        while n != 1 and n not in seen:
+            seen.add(n)
+            n = next_num(n)
+
+        return n == 1
+    
+
+
+# function version of the same thing
+
+def next_num(x):
+    ssq=0
+    while x>0:
+        digit = x % 10
+        ssq += digit*digit
+        x //= 10
+        
+    return ssq
+
+
+def isHappy(n):
+    seen=set()
+    
+    while n!=1 and n not in seen:
+        seen.add(n)
+        n = next_num(n)
+        
+    return n==1
+
+#%% 8. Palindrome linked list
+# A linked list is a palindrome if it reads the same forward and backward.
+# Example:
+# 1 -> 2 -> 2 -> 1
+# or
+# 1 -> 2 -> 3 -> 2 -> 1
+
+# The trick is:
+# find the middle,
+# reverse the second half,
+# compare the first half and the reversed second half.
+
+
+# For a list like:
+# 1 -> 2 -> 3 -> 2 -> 1
+
+# we do:
+# 1. move slow and fast until the middle,
+# 2. reverse from slow onward,
+# 3. compare nodes from the start and from the reversed second half.
+
+
+
+# test cases:
+#[]               # -> True
+#[1]              # -> True
+#[1,2]            # -> False
+#[1,1]            # -> True
+#[1,2,1]          # -> True
+#[1,2,2,1]        # -> True
+#[1,2,3,2,1]      # -> True
+#[1,2,3,4,5]      # -> False
+
+#%% 8. Find start of cycle in functional graph
 
 
 #%%

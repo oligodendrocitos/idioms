@@ -1,4 +1,125 @@
-""" two pointers """
+""" two pointers  
+- - - - - - - - - - - - - - - - - - - -
+1. When Should You Think Two Pointers?
+
+- Array is sorted
+- You’re looking for pairs
+- You need to merge
+- You’re removing duplicates
+- You’re shrinking from both ends
+- Brute force would be nested loops
+
+If you catch yourself thinking:
+"I need to compare elements relative to each other in a sorted structure"
+That's two pointers.
+
+
+- - - - - - - - - - - - - - - - - - - -
+2. The 4 Main Two-Pointer Variants
+
+
+Variant A — Opposite Ends (Converging)
+
+    Used when:
+     - Sorted array
+     - Looking for pair relationships
+     - Maximization/minimization problems
+    
+    Examples:
+     - Two Sum II (sorted)
+     - Container With Most Water
+     - 3Sum (inner loop)
+     - Valid palindrome
+    
+    Mental template:
+    l, r = 0, len(arr) - 1
+    while l < r:
+        if condition:
+            l += 1
+        else:
+            r -= 1
+    
+    You adjust:
+     - the condition
+     - what happens inside
+    
+    
+    
+Variant B — Same Direction (Slow / Fast)
+    
+    Used for:
+     - Removing elements in-place
+     - Deduplicating sorted array
+     - Partitioning
+    
+    Examples:
+     - Remove duplicates from sorted array
+     - Move zeros
+     - Partition array
+     
+    Mental template:
+    slow = 0
+    for fast in range(len(arr)):
+        if keep(arr[fast]):
+            arr[slow] = arr[fast]
+            slow += 1
+    
+    This pattern avoids extra space.
+
+
+
+Variant C — Merge From End (Your Example)
+    
+    Used when:
+        - You need to merge in-place
+        - One array has buffer at the end
+    
+    Example:
+     - Merge Sorted Array
+    
+    Mental template:
+    i, j, k = m-1, n-1, m+n-1
+    while i >= 0 and j >= 0:
+        if nums1[i] > nums2[j]:
+            nums1[k] = nums1[i]
+            i -= 1
+        else:
+            nums1[k] = nums2[j]
+            j -= 1
+        k -= 1
+    
+    Then handle leftovers.
+    
+    This is just a specialized opposite-ends case.
+
+
+
+- - - - - - - - - - - - - - - - - - - -
+Think of slow as:
+
+"the length of the valid prefix"
+
+So:
+
+    [ VALID PART | GARBAGE ]
+
+We are building:
+
+    [1,1,2,2,3 | ...]
+
+Everything after slow doesn't matter.
+
+
+Or:
+    [ valid region | unknown region ]
+
+Where:
+    slow = boundary
+    fast = scanner
+
+
+
+"""
 
 
 #%% 1. reverse array
@@ -182,7 +303,7 @@ def move_zeros(nums):
 ############################################################################
 ############################################################################
 ############################################################################
-#%% 1. reverse array
+#%% ====================== 1. reverse array
 # given array, reverse it in place
 # [1,2,3,4] -> [4,3,2,1]
 
@@ -207,7 +328,25 @@ def reverse_array(arr):
 reverse_array(arr)
 print(arr)
 
+
+#%% 1.5. reverse array without simultaneous assignment
+
+arr=[1,2,3,4,5]
+
+def reverse(arr):
+    l,r = 0,len(arr)-1
+    
+    while l<r:
+        tmp=arr[l]
+        arr[l]=arr[r]
+        arr[r]=tmp
         
+        r-=1
+        l+=1
+        
+        
+reverse(arr)
+    
 
 #%% 2. valid palindrome
 # given string, return True if it reads the same way forward and backward
@@ -278,8 +417,41 @@ print(foo)
 # fast scans
 # When new value appears -> write it at slow
 
-nums = [1,2,2,3,4,5,5,6]
 
+# nums = [1,1,2,2,3]
+# idx  =  0 1 2 3 4
+#
+# slow = last unique value we have kept
+# fast = scans forward
+#
+# start:
+# [1 | 1 2 2 3]
+#  s   f
+#
+# fast=1: nums[fast]=1, nums[slow]=1 -> same, skip
+# [1 | 1 2 2 3]
+#  s     f
+#
+# fast=2: nums[fast]=2, nums[slow]=1 -> different
+# keep 2 at slow+1
+# [1 2 | 2 2 3]
+#    s   f
+#
+# fast=3: nums[fast]=2, nums[slow]=2 -> same, skip
+# [1 2 | 2 2 3]
+#    s     f
+#
+# fast=4: nums[fast]=3, nums[slow]=2 -> different
+# keep 3 at slow+1
+# [1 2 3 | 2 3]
+#      s   f
+#
+# answer length = slow + 1
+
+
+
+nums = [1,2,2,3,4,5,5,6]
+#      [0,1,2,3,4,5,6,7]
 
 def remove_dupes(nums):
     slow=0
@@ -291,9 +463,32 @@ def remove_dupes(nums):
             
     return slow+1
 
-
 remove_dupes(nums)
     
+
+
+
+#%% alternative implementation
+# compare adjacent elements (fast vs fast-1)
+# no reasoning about slow in the condition
+
+nums = [1,2,2,3,4,5,5,6]
+#      [0,1,2,3,4,5,6,7]
+
+def remove_dupes(nums):
+    if not nums:
+        return 0
+    
+    slow=1
+    
+    for fast in range(1, len(nums)):
+        if nums[fast] != nums[fast-1]:
+            nums[slow] = nums[fast]
+            
+            slow += 1
+
+remove_dupes(nums)
+
 
 #%% 5. move zeros
 # move all zeros to end of array while maintaining relative order of non-zero elements
@@ -303,8 +498,44 @@ remove_dupes(nums)
 # fast scans
 # After finishing, fill rest with zeros
 
+# nums = [0,1,0,3,12]
+# idx  =  0 1 2 3 4
+#
+# slow = next spot for a non-zero
+# fast = scans every number
+#
+# start:
+# [0,1,0,3,12]
+#  s
+#
+# fast=0 -> 0, ignore
+# [0,1,0,3,12]
+#  s
+#
+# fast=1 -> 1, keep it
+# write nums[slow] = 1
+# [1,1,0,3,12]
+#  s f
+#
+# fast=2 -> 0, ignore
+# [1,1,0,3,12]
+#    s f
+#
+# fast=3 -> 3, keep it
+# [1,3,0,3,12]
+#    s   f
+#
+# fast=4 -> 12, keep it
+# [1,3,12,3,12]
+#      s   f
+#
+# fill the rest with zeros
+# [1,3,12,0,0]
+
+
 nums = [0,1,0,3,12]
 nums = [0,1,0,0,3,12,0,0]
+# 
 
 def move_zeros(nums):
     slow=0
@@ -322,52 +553,394 @@ move_zeros(nums)
 print(nums)
 
 
-############################################################################
-############################################################################
-############################################################################
-############################################################################
-############################################################################
-############################################################################
-############################################################################
-#%% 1. reverse array without simultaneous assignment
+#%% alternative implementation
+# instead of write and overwrite, 
+# swap non-zero forward
 
-arr=[1,2,3,4,5]
+# whenever fast sees a non-zero:
+#   bring it forward to slow via swap
+#
+# this gradually builds:
+# [non-zeros | zeros]
+#
+# difference from overwrite version:
+# - overwrite: copy forward, then clean up zeros later
+# - swap: zeros naturally get pushed back as a side effect
 
-def reverse(arr):
-    l,r = 0,len(arr)-1
+# swap version invariant:
+# everything before slow is already correct
+# everything between slow and fast is "mixed"
+#
+# when we swap:
+#   we pull a non-zero into the correct region
+#   and push a zero backward (or another value we’ll process later)
+
+
+
+# nums = [0,1,0,0,3,12,1,0]
+# idx  =  0 1 2 3 4  5  6 7
+#
+# slow = next position where a non-zero should go
+# fast = scans
+#
+# KEY IDEA:
+# instead of "writing forward", we SWAP the non-zero into position
+# this preserves everything automatically
+
+# start:
+# [0,1,0,0,3,12,1,0]
+#  s,f
+
+# fast=0 -> 0, skip
+# [0,1,0,0,3,12,1,0]
+#  s
+#    f
+
+# fast=1 -> 1, swap with slow(0)
+# swap(0,1)
+# [1,0,0,0,3,12,1,0]
+#    s
+#    f
+
+# fast=2 -> 0, skip
+# [1,0,0,0,3,12,1,0]
+#    s
+#      f
+
+# fast=3 -> 0, skip
+# [1,0,0,0,3,12,1,0]
+#    s
+#        f
+
+# fast=4 -> 3, swap with slow(1)
+# swap(1,4)
+# [1,3,0,0,0,12,1,0]
+#      s
+#        f
+
+# fast=5 -> 12, swap with slow(2)
+# swap(2,5)
+# [1,3,12,0,0,0,1,0]
+#        s
+#          f
+
+# fast=6 -> 1, swap with slow(3)
+# swap(3,6)
+# [1,3,12,1,0,0,0,0]
+#          s
+#            f
+
+# fast=7 -> 0, skip
+
+# result:
+# [1,3,12,1,0,0,0,0]
+
+
+nums = [0,1,0,0,3,12,1,0]
+#      [0,1,2,3,4,5, 6,7]
+
+def move_zeros(nums):
+    slow = 0
     
-    while l<r:
-        tmp=arr[l]
-        arr[l]=arr[r]
-        arr[r]=tmp
-        
-        r-=1
-        l+=1
-        
-        
-reverse(arr)
+    for fast in range(len(nums)):
+        if nums[fast] != 0:
+            nums[slow], nums[fast] = nums[fast], nums[slow]
+            slow += 1
+
+
+#%% 6. remove all instances
+# remove all instances of val in-place
+# return new length
+# nums = [3,2,2,3], val = 3 -> [2,2]
+
+# slow = next spot for a value we keep / slow points to last non-del val spot
+# fast = scans
+#
+# start:
+# [3,2,2,3]
+#  0 1 2 3   
+#  s
+#
+# fast=0 -> 3 == val, skip
+# [3,2,2,3]
+#  s
+#
+# fast=1 -> 2 != val, keep it
+# [2,2,2,3]
+#  s f
+#
+# fast=2 -> 2 != val, keep it
+# [2,2,2,3]
+#    s f
+#
+# fast=3 -> 3 == val, skip
+# [2,2,2,3]
+#    s   f
+#
+# answer length = slow
+
+nums = [3,2,2,3]
+val=3
     
-#%% 2. remove dupes and replace them with 0
-
-arr = [1,2,3,3,4]
-arr = [1,2,2,3,3,4]
-
-def remove_dupes_with_zero(arr):
+def remove_all_instances(nums, val):
     slow=0
     
-    for fast in range(len(arr)):
-        
-        if fast==0 or arr[fast] != arr[fast-1]:
-            arr[slow]=arr[fast]
+    for fast in range(len(nums)):
+        if nums[fast]!=val:
+            nums[slow] = nums[fast]
             slow+=1
             
-    for i in range(slow, len(arr)):
-        arr[i]=0
+    print(nums)
+    return slow
+
+remove_all_instances(nums, val)
+
+
+# %% 7. Remove all but 2 copies (sorted array)
+# [1,1,1,2,2,3] -> [1,1,2,2,3]
+# nums = [1,1,1,2,2,3]
+# idx  =  0 1 2 3 4 5
+#
+# rule:
+# keep nums[fast] only if nums[fast] != nums[slow-2]
+#
+# Why this works:
+# the first 2 elements are always allowed
+# after that, compare with the element 2 slots behind
+#
+# start:
+# [1,1,1,2,2,3]
+#  s=2, fast=2
+#
+# [1,1,1,2,2,3]
+#  s   f
+# fast=2 -> compare nums[2] vs nums[0]
+# 1 == 1, so skip
+# [1,1,1,2,2,3]
+#    s   f
+#
+# fast=3 -> compare nums[3] vs nums[1]
+# 2 != 1, keep it
+# [1,1,2,2,2,3]
+#      s f
+#
+# fast=4 -> compare nums[4] vs nums[2]
+# 2 == 2, skip
+# [1,1,2,2,2,3]
+#      s   f
+#
+# fast=5 -> compare nums[5] vs nums[3]
+# 3 != 2, keep it
+# [1,1,2,3,2,3]
+#        s f
+#
+# answer length = slow
+
+# keep an element if fast-2
+nums = [1,1,1,2,2,3]
+# nums = [0,1,1,2,2,3]
+# nums = [0,1,1,2,2,2,2,3]
+
+
+slow=2
+s = f"_ "*len(nums)
+for fast in range(2, len(nums)):
+    sf = s[:fast*2] + 'F' + s[fast*2 + 1:]
+    sfs = sf[:slow*2] + 'S' + sf[slow*2 + 1:]
+    print(sfs)
+    if nums[fast] != nums[fast-2]:
+        nums[slow]=nums[fast]
+        slow+=1
         
-remove_dupes_with_zero(arr)
-print(arr)
+    # else:
+        # slow=fast
+    
+print(nums)
+print("---")
+    
+# keep an element if fast-2
+nums = [1,1,1,2,2,3]
+# nums = [0,1,1,2,2,3]
+# nums = [0,1,1,2,2,2,2,3]
+
+
+def remove_duplicates_allow_2(nums):
+    if len(nums) <= 2:
+        return len(nums)
+    
+    slow = 2
+    
+    for fast in range(2, len(nums)):
+        if nums[fast] != nums[slow - 2]:
+            nums[slow] = nums[fast]
+            slow += 1
+            
+    nums[:] = nums[:slow]   # shrink the list in place
+    print(nums)
+    return slow
+
+
+# def remove_duplicates_allow_2(arr):
+#     slow=2
+    
+#     for fast in range(2,len(arr)):
+#         if arr[fast]!=arr[slow-2]:
+#             arr[slow]=arr[fast]
+#             slow+=1
+            
+#     print(arr)
+#     return slow
+
+
+res = remove_duplicates_allow_2(nums)
+print(res)
     
 
+
+
+#%% 8. Move all negatives to the left (order preserved)
+# [1,-1,3,-2,0] -> [-1,-2,1,3,0]
+
+nums = [1,-1,3,-2,0]
+
+# Doint this:
+slow=0
+for fast in range(len(nums)):
+    if nums[fast]<0:
+        nums[slow],nums[fast]=nums[fast],nums[slow]
+        slow+=1
+        
+print(nums)
+# doesn't preserve order of positive numbers. 
+
+
+
+# There are two main options for how to solve this:
+# Option 1: Use extra space
+# This is the simplest and most common in Python.
+def move_negatives_left(nums):
+    negatives = [x for x in nums if x < 0]
+    non_negatives = [x for x in nums if x >= 0]
+    nums[:] = negatives + non_negatives
+    return nums
+# [1, -1, 3, -2, 0] -> [-1, -2, 1, 3, 0]
+
+
+# Option 2: In-place stable version
+# If you want to do it in-place, you can insert each negative where it belongs and shift the block of positives right by one.
+def move_negatives_left(nums):
+    slow = 0
+    for fast in range(len(nums)):
+        if nums[fast] < 0:
+            temp = nums[fast]
+            i = fast
+            while i > slow:
+                nums[i] = nums[i - 1]
+                i -= 1
+            nums[slow] = temp
+            slow += 1
+    return nums
+
+# This preserves order, but it is slower: O(n²) in the worst case.
+
+
+
+#%% 9. Partition array by pivot (like quicksort step)
+# nums = [3,2,1,5,6,4], pivot = 3
+# -> [2,1,3,5,6,4] (order of groups matters)
+
+nums = [9,12,5,10,14,3,10]
+pivot = 10
+# output: [9,5,3,10,10,12,14]
+
+# 1) Partition array by pivot
+# There are two common versions of this problem:
+# A. Stable partition
+# You must keep the original relative order of elements less than, equal to, and greater than the pivot.
+# Mental model:
+#     first collect all < pivot
+#     then all == pivot
+#     then all > pivot
+# This is much easier than trying to do it in-place while preserving order.
+
+
+def partition_array(nums, pivot):
+    less = [x for x in nums if x < pivot]
+    equal = [x for x in nums if x == pivot]
+    greater = [x for x in nums if x > pivot]
+    nums[:] = less + equal + greater
+    return nums
+
+
+# B. In-place partition, order not preserved
+# Sometimes the problem only asks you to partition, not preserve order.
+# Then you can use two pointers:
+def partition_array_inplace(nums, pivot):
+    i = 0
+    for j in range(len(nums)):
+        if nums[j] < pivot:
+            nums[i], nums[j] = nums[j], nums[i]
+            i += 1
+    return nums
+
+
+nums = [3,2,1,5,6,4]
+
+
+
+#%% 10. Sort colors (Dutch national flag)
+# [2,0,2,1,1,0] -> [0,0,1,1,2,2]
+
+# Core idea:
+# Use three regions:
+#     left side: all 0s
+#     middle: all 1s
+#     right side: all 2s
+
+# And use three pointers:
+#     low = next position for 0
+#     mid = current element being examined
+#     high = next position for 2
+
+
+# The logic:
+# At every step, nums[mid] is one of:
+# Case 0
+# If nums[mid] == 0:
+#     swap it with nums[low]
+#     move both low and mid forward
+# Case 1
+# If nums[mid] == 1:
+#     just move mid forward
+# Case 2
+# If nums[mid] == 2:
+#     swap it with nums[high]
+#     move high backward
+#     do not move mid yet, because the swapped-in value at mid still needs checking
+
+nums = [2,0,2,1,1,0]
+
+
+def sort_colors(nums):
+    low = 0
+    mid = 0
+    high = len(nums) - 1
+
+    while mid <= high:
+        if nums[mid] == 0:
+            nums[low], nums[mid] = nums[mid], nums[low]
+            low += 1
+            mid += 1
+        elif nums[mid] == 1:
+            mid += 1
+        else:
+            nums[mid], nums[high] = nums[high], nums[mid]
+            high -= 1
+            
+            
+            
+
+    
 ############################################################################
 ############################################################################
 ############################################################################
@@ -495,6 +1068,34 @@ def max_ar(height: List[int]) -> int:
 
 max_ar(h)
 
+#%% 3Sum visual walkthrough
+# nums = [-1,0,1,2,-1,-4]
+# sort -> [-4,-1,-1,0,1,2]
+#
+# outer i picks the first number
+# inner l,r find the other two
+#
+# i=0 -> -4
+#   l=1 (-1), r=5 (2)   sum = -3  too small -> l++
+#   l=2 (-1), r=5 (2)   sum = -3  too small -> l++
+#   l=3 (0),  r=5 (2)   sum = -2  too small -> l++
+#   l=4 (1),  r=5 (2)   sum = -1  too small -> l++
+# stop
+#
+# i=1 -> -1
+#   l=2 (-1), r=5 (2)   sum = 0   found [-1,-1,2]
+#   move both inward, skip duplicates
+#   l=3 (0),  r=4 (1)   sum = 0   found [-1,0,1]
+# stop
+#
+# i=2 -> -1
+#   skip because nums[2] == nums[1]
+#
+# i=3 -> 0
+#   l=4, r=5  sum = 3  too big -> r--
+# stop
+#
+# final: [[-1,-1,2], [-1,0,1]]
 
 #%% 3. 3Sum
 # given array nums, return all unique triplets [a,b,c]
@@ -579,6 +1180,7 @@ def three_sum(nums: List[int]) -> List[List[int]]:
             else:
                 r -= 1
     return res
+
 
 
 #%% 3Sum: function 
@@ -698,7 +1300,43 @@ for i in range(len(arr)-2):
             r-=1
             
     
-    
+#%% 3Sum Closest visual walkthrough
+# same outer loop as 3Sum
+# but instead of collecting triplets, keep the best sum seen so far
+#
+# nums = [-1, 2, 1, -4], target = 1
+# sort -> [-4,-1,1,2]
+#
+# start best = any 3 numbers
+# best = -4 + -1 + 1 = -4
+#
+# i=0 -> -4
+#   l=1, r=3 -> sum = -3
+#   diff from target = 4
+#   best becomes -3
+#
+#   sum < target, so l++
+#   l=2, r=3 -> sum = -1
+#   diff = 2
+#   best becomes -1
+#
+#   sum < target, so l++
+#   stop
+#
+# i=1 -> -1
+#   l=2, r=3 -> sum = 2
+#   diff = 1
+#   best becomes 2
+#
+#   sum > target, so r--
+#   stop
+#
+# answer = 2
+#
+# idea:
+# - if current sum is too small, move l right
+# - if current sum is too big, move r left
+# - always remember the closest sum seen so far
     
 #%% 3Sum closest
 # Modify to solve 3Sum Closest (find triplet sum closest to target). 
@@ -836,6 +1474,40 @@ def three_sum_closest_triplet(nums: List[int], target: int):
             else:
                 r -= 1
     return best, list(best_triplet)
+
+#%% 4Sum visual walkthrough
+# nums = [1,0,-1,0,-2,2]
+# sort -> [-2,-1,0,0,1,2]
+#
+# 4Sum = 2 fixed outer numbers + 2-pointer inside
+#
+# i=0 -> -2
+#   j=1 -> -1
+#     l=2 (0), r=5 (2)
+#     sum = -2 + -1 + 0 + 2 = -1  too small -> l++
+#     l=3 (0), r=5 (2)
+#     sum = -1  too small -> l++
+#     l=4 (1), r=5 (2)
+#     sum = 0   found [-2,-1,1,2]
+#
+#   j=2 -> 0
+#     l=3 (0), r=5 (2)
+#     sum = 0   found [-2,0,0,2]
+#
+#   j=3 -> 0
+#     skip duplicate j
+#
+# i=1 -> -1
+#   j=2 -> 0
+#     l=3 (0), r=5 (2)
+#     sum = 1   too big -> r--
+#     l=3 (0), r=4 (1)
+#     sum = 0   found [-1,0,0,1]
+#
+# the pattern is:
+# outer loop on i
+# inner loop on j
+# then l/r scan the rest
 
 #%% 4sum - nested loop
 # Practice 3 problems back-to-back: 3Sum, 3Sum Closest, and 4Sum (4Sum generalizes outer loop twice or recursion + two-pointer inside).
