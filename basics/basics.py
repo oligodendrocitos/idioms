@@ -6,6 +6,15 @@ Created on Thu Mar 12 16:03:10 2026
 @author: qq20468
 """
 
+#%% range and dict
+
+# TODO range is exclusive of stop
+
+# list[:3] is exclusive of 3
+
+# how to loop through / access dict keys and dict values
+
+
 #%% set operations ------------------------------------------------------------
 A = {1,2,3}
 B = {2,3,4}
@@ -17,6 +26,9 @@ A - B   # difference
 print(A | B)
 print(A & B)
 print(A - B)
+
+
+# TODO more set ops: add, or remove from set on the fly
 
 
 #%% collections ---------------------------------------------------------------
