@@ -68,7 +68,7 @@ Variant B — Same Direction (Slow / Fast)
 
 
 
-Variant C — Merge From End (Your Example)
+Variant C — Merge From End
     
     Used when:
         - You need to merge in-place
@@ -134,47 +134,55 @@ Where:
 # ============================================================================
 # given array, reverse it in place
 # [1,2,3,4] -> [4,3,2,1]
-
+# --- Algorithm: ---
 # Left starts at beginning
 # Right starts at end
 # Swap
 # Move inward
 # Stop when they cross.
 
+
 arr = [2,5,7,9,12]
 arr = [0,2,2,7,9,12]
+arr = []
+arr = [0]
+arr = [0, 1]
 
 def reverse_array(arr):
-    l = 0
-    r = len(arr)-1
+    l=0
+    r=len(arr)-1
+    
+    if len(arr)<2:
+        return arr
     
     while l<r:
-        arr[l], arr[r] = arr[r], arr[l]
-        
+        arr[l],arr[r]=arr[r],arr[l]
         l+=1
         r-=1
         
     return arr
+        
 
 reverse_array(arr)
-print(arr)
-
+reverse_array([2,5,7,9]) == [9,7,5,2]
+reverse_array([2,5,7]) == [7, 5, 2]
+reverse_array([])
+reverse_array([0])
+reverse_array([0,1]) == [1,0]
         
 #%% 1.5. reverse array without simultaneous assignment
 arr=[1,2,3,4,5]
 
 def reverse(arr):
-    l,r = 0,len(arr)-1
-    
-    while l<r:
-        tmp=arr[l]
-        arr[l]=arr[r]
-        arr[r]=tmp
-        r-=1
-        l+=1
+    ...
         
 
 reverse(arr)
+reverse_array([2,5,7,9]) == [9,7,5,2]
+reverse_array([2,5,7]) == [7, 5, 2]
+reverse_array([])
+reverse_array([0])
+reverse_array([0,1]) == [1,0]
 
 #%% 2. valid palindrome =============================
 # ============================================================================
@@ -193,21 +201,34 @@ s = "racecar"
 # s = "aaaaa"
 
 def is_palindrome(s):
-    l,r = 0, len(s)-1
+    l=0
+    r=len(s)-1
+    
+    if len(s)<2:
+        return True
+    
     
     while l<r:
-        if s[l] != s[r]:
+        if s[l]!=s[r]:
             return False
         
         l+=1
         r-=1
         
     return True
-
+    
+    
 
 
 
 is_palindrome(s)
+is_palindrome("racecar") == True  
+is_palindrome("hello!")  == False # False 
+is_palindrome("abba")    == True  # True
+is_palindrome("aba")     == True  # True
+is_palindrome("ab")      == False # False 
+is_palindrome("a")       == True  # True
+is_palindrome("")        == True  # True
 
 
 #%% 3. Two Sum II ==============================
@@ -224,35 +245,40 @@ is_palindrome(s)
 nums = [2,7,11,15]
 nums = [2,4,7,11,15]
 target = 199 # none
-target = 13 # 0,2
-target = 18 # 1,2
+target = 13 # 0,3
+target = 18 # 2,3
 
 def two_sum(nums,target):
     l=0
     r=len(nums)-1
     
+    
     while l<r:
-        res = nums[l]+nums[r]
-        if res==target:
+        s = nums[l]+nums[r]
+        
+        if s==target:
             return (l,r)
-        elif res<target:
+        
+        elif s<target:
             l+=1
         else:
             r-=1
             
+    
     return None
+    
+           
 
-
-
-
-        
-
-
-        
 
 
 foo = two_sum(nums, target)
 print(foo)
+
+two_sum([2,4,7,11,15], 199)  # None
+two_sum([2,4,7,11,15], 13)   # 0,3
+two_sum([2,4,7,11,15], 18)   # 2,3
+two_sum([2,7,11,15], 13)     # 0,2
+two_sum([2,7,11,15], 18)     # 1,2
             
 #%% 4. remove duplicates (sorted array) =====================
 # ============================================================================
@@ -293,23 +319,28 @@ def remove_dupes(nums):
     slow=0
     
     for fast in range(1,len(nums)):
-        if nums[fast] != nums[slow]:
-            slow += 1
+        if nums[fast]!=nums[slow]:
+            slow+=1
             nums[slow]=nums[fast]
             
+    
+    nuniq=slow+1
+    return nuniq
+    
             
-    # print(f"{slow} {fast}")
-    print(f"{nums}, uniq:{slow+1}")
-    return slow+1
 
 
 remove_dupes(nums)
-
-
+remove_dupes([1,2,2,3,4,5,5,6]) # 6
+remove_dupes([3,3,9,7])         # 3
+remove_dupes([3,9,9])           # 2
+remove_dupes([3,3])             # 1
+remove_dupes([1,2,2,3,4,5,5,6]) # 6
+remove_dupes([1])               # 1
 
 #%% 5. move zeros =============================
 # ============================================================================
-# move all zeros to end of array while maintaining relative order of non-zero elements
+# move all zeros to end of array while maintaining relative order of non-zeros
 # [0,1,0,3,12]-> [1,3,12,0,0]
 # --- Idea: ---
 # slow = next spot for a non-zero
@@ -334,22 +365,23 @@ nums = [0,1,0,0,3,12,1,0]
 def move_zeros(nums):
     slow=0
     
-    for fast in range(0,len(nums)):
+    for fast in range(len(nums)):
         if nums[fast]!=0:
-            nums[slow] = nums[fast]
+            nums[slow]=nums[fast]
             slow+=1
             
-    for i in range(slow, len(nums)):
-        nums[i] = 0
+    
+    for i in range(slow,len(nums)):
+        nums[i]=0
         
     return nums
+        
             
-    
-
-
 move_zeros(nums)
-print(nums)
-
+move_zeros([0,1,0,3,12]) == [1,3,12,0,0]
+move_zeros([1,1,0,3,12]) == [1,1,3,12,0]
+move_zeros([0,0,3]) == [3,0,0]
+move_zeros([0,1]) == [1,0]
 
 
 #%% 6. remove all instances ============================
@@ -393,14 +425,17 @@ def remove_all_instances(nums, val):
     
     for fast in range(len(nums)):
         if nums[fast]!=val:
-            nums[slow] = nums[fast]
+            nums[slow]=nums[fast]
             slow+=1
             
-    print(nums)
     return slow
 
 
 remove_all_instances(nums, val)
+remove_all_instances([1,2,3,2,4,2], 2) # 3
+remove_all_instances([1,2,1,2,1,2], 1) # 3
+remove_all_instances([1,2,1,2,1,2], 2) # 3
+remove_all_instances([1,2,1,2,1],   2) # 3
 
 
 #%% 7. Remove all but 2 copies (sorted array) =============
@@ -451,6 +486,13 @@ remove_all_instances(nums, val)
 # result:
 # [1,1,2,2,3] new length = slow = 5
 
+# --- Example: ---
+#              [1, 1, 1, 2, 2, 3]        
+#              s-2    sf            1==1  <0    -> f++
+#              s-2    s  f          2!=1 -3  <0 -> f++
+#                 s-2    s  f       2!=1  -2  <0 -> f++
+#                             f     3!=2   <0  -> 
+
 #  possible array starts: 
 # [1,1,1] [0,1,1] [0,0,1] [0,1,2]
 # in any of these cases, first two copies don'ŧ matter in relation to each other (!). 
@@ -463,23 +505,26 @@ nums = [1,1,1,2,2,3]
 
     
 def remove_duplicates_allow_2(nums):
-    if len(nums) <= 2:
-        return len(nums)
+    nums.sort()
+    slow=2
     
-    slow = 2
-    
-    for fast in range(2, len(nums)):
-        if nums[fast] != nums[slow - 2]:
-            nums[slow] = nums[fast]
-            slow += 1
+    for fast in range(2,len(nums)):
+        if nums[fast]!=nums[slow-2]:
+            nums[slow]=nums[fast]
+            slow+=1
             
-    nums[:] = nums[:slow]   # shrink the list in place
-    print(nums)
-    return slow
+    return nums[:slow]
+            
+            
 
 
 
 remove_duplicates_allow_2(nums)
+remove_duplicates_allow_2([0,1,1,2,2,3])
+remove_duplicates_allow_2([0,1,1,2,2,2,2,3])
+remove_duplicates_allow_2([1,1,1,2,2,2,2,3])
+remove_duplicates_allow_2([0,0,1,2,2,2,2,3])
+
 
 #%% 8. Move all negatives to the left (order preserved) =========
 # ============================================================================
@@ -496,7 +541,8 @@ remove_duplicates_allow_2(nums)
 #    negative should go (slow).
 # 3. When a negative is found:
 #   - save the negative value temporarily
-#   - shift all elements between slow and fast one position to the right
+#   - shift all elements between slow and fast one position to the right 
+#   - (start from the right!!!)
 #   - insert the negative at slow
 #   - increase slow
 # 4. If fast finds a non-negative, skip it.
@@ -507,21 +553,30 @@ remove_duplicates_allow_2(nums)
 # Space: O(1) - only a temporary variable and pointers are used
 
 def move_negatives_left(nums):
-    slow = 0
-
-    for fast in range(len(nums)):
-        if nums[fast] < 0:
-            temp = nums[fast]
-            i = fast
-
-            while i > slow:
-                nums[i] = nums[i - 1]
-                i -= 1
-
-            nums[slow] = temp
-            slow += 1
-
+    slow=0
+    
+    
+    for fast in range(1, len(nums)):
+        if nums[fast]<0:
+            tmp=nums[fast]
+            
+            i=fast
+            while i>slow:
+                nums[i]=nums[i-1]
+                i-=1
+                
+            nums[slow]=tmp
+            slow+=1
+            
     return nums
+                
+            
+    
+move_negatives_left( [1,-1,3,-2,0]) # [-1, -2, 1, 3, 0]
+move_negatives_left( [-1,1,3,-2,0]) # [-2, -1, 1, 3, 0]
+move_negatives_left( [0,2,3])       # 
+move_negatives_left( [1,-3,2,0,-2]) # [-3, -2, 1, 2, 0]
+    
 
 #%% ==== Option 2: Use extra space ======
 # --- Idea: ---
@@ -538,13 +593,12 @@ def move_negatives_left(nums):
 
 
 def move_negatives_left_extra_space(nums):
-    negatives = [x for x in nums if x < 0]
-    non_negatives = [x for x in nums if x >= 0]
+    ...
 
-    nums[:] = negatives + non_negatives
-    return nums
-
-
+move_negatives_left( [1,-1,3,-2,0])
+move_negatives_left( [-1,1,3,-2,0])
+move_negatives_left( [0,2,3])
+move_negatives_left( [1,-3,2,0,-2])
 
 #%% 9. Partition array by pivot (like quicksort step) ==============
 # ============================================================================
@@ -583,15 +637,13 @@ def move_negatives_left_extra_space(nums):
 
 
 def partition_array(nums, pivot):
-    less = [x for x in nums if x < pivot]
-    equal = [x for x in nums if x == pivot]
-    greater = [x for x in nums if x > pivot]
+    ...
+            
+    
 
-    nums[:] = less + equal + greater
-    return nums
+partition_array([3,2,1,5,6,4], 3)
 
-
-#% === B. In-place partition ===
+#%% === B. In-place partition ===
 # Sometimes the problem only asks you to partition, not preserve order.
 # Then you can use two pointers.
 # Move all elements < pivot to the left.
@@ -643,16 +695,20 @@ def partition_array(nums, pivot):
 
 
 def partition_array_inplace(nums, pivot):
-    slow = 0
-
+    slow=0
+    
     for fast in range(len(nums)):
-        if nums[fast] < pivot:
-            nums[slow], nums[fast] = nums[fast], nums[slow]
-            slow += 1
-
+        if nums[fast]<pivot:
+            nums[slow],nums[fast] = nums[fast],nums[slow]
+            slow+=1
+            
     return nums
+            
 
-
+partition_array_inplace([3,2,1,5,6,4], 3)
+partition_array_inplace([3,2,1,5,6,4], 4)
+partition_array_inplace([5,2,1,3,6,4], 4)
+partition_array_inplace([5,2,4,3,6,1], 4)
 
 #%% 10. Sort colors (Dutch National Flag) ===================
 # ============================================================================
@@ -747,25 +803,31 @@ def partition_array_inplace(nums, pivot):
 
 
 def sort_colors(nums):
-    low = 0
-    mid = 0
-    high = len(nums) - 1
-
-    while mid <= high:
-        if nums[mid] == 0:
-            nums[low], nums[mid] = nums[mid], nums[low]
-            low += 1
-            mid += 1
-
-        elif nums[mid] == 1:
-            mid += 1
-
-        else:
-            nums[mid], nums[high] = nums[high], nums[mid]
-            high -= 1
-
-    return nums
+    lo=0
+    mid=0
+    hi=len(nums)-1
     
+    while mid<hi:
+        if nums[mid]==0:
+            nums[lo],nums[mid]=nums[mid],nums[lo]
+            mid+=1
+            lo+=1
+        elif nums[mid]==1:
+            mid+=1
+        
+        else:
+            # nums[mid]==2
+            nums[mid]=nums[hi]
+            nums[hi]=2
+            hi-=1
+            
+    return nums
+        
+    
+
+sort_colors([2,0,2,1,1,0])
+sort_colors([1,0,2,1,2,0])
+
 
 ############################################################################
 ############################################################################
@@ -818,31 +880,40 @@ arr = []
 arr = [-2, -1]
 arr = [0,1,2]
 arr = [-5, -3, -1]
-# arr = [-4, -1, 0, 3, 10]
-# arr = [-10, -4, -1, 0, 3, 10]
+arr = [-4, -1, 0, 3, 10]
+arr = [-10, -4, -1, 0, 3, 10]
 
 def sorted_squares(nums: List[int]) -> List[int]:
-    n = len(nums)
-    l,r,k = 0, n-1, n-1
-    res = [0] * n
+    l=0
+    r=len(nums)-1
+    ans=[0]*len(nums)
     
-    while l <= r:
-        if abs(nums[l]) < abs(nums[r]):
-            res[k] = nums[r]*nums[r]
-            r-=1
-        else: #if abs(nums[l]) > abs(nums[r]):
-            res[k] = nums[l]*nums[l]
+    if len(nums)<1:
+        return []
+    
+    i=len(ans)-1
+    while l<=r:
+        if abs(nums[l])>abs(nums[r]):
+            ans[i]=nums[l]**2
             l+=1
+        else:
+            ans[i]=nums[r]**2
+            r-=1
             
-        k-=1    
-    
-    
-    return res
-    
+        i-=1
+        
+    return ans
+            
 
 
-
-sorted_squares(arr)
+sorted_squares([])
+sorted_squares([-2, -1])
+sorted_squares([0,1,2])
+sorted_squares([-2,0,1,2])
+sorted_squares([-5, -3, -1])
+sorted_squares([-4, -1, 0, 3, 10])
+sorted_squares([-4, -1, 2, 3, 10])
+sorted_squares([-10, -4, -1, 0, 3, 10])
 
         
 #%% 2. Container with most water ==========================
@@ -864,9 +935,6 @@ sorted_squares(arr)
 # Input: [1,8,6,2,5,4,8,3,7]
 # Output: 49
 h=[1,8,6,2,5,4,8,3,7];  # 49
-# h=[1,8,6,2,5,4,18,3,7]; # 49 
-# h=[1,18,6,2,5,18,3,7];  # 72
-# h=[1,1,1,1,1,1,1,1];    # 7
 n=len(h)
 l,r =1, n-1
 # l,r =1, n-3
@@ -874,31 +942,37 @@ min(h[l], h[r]) * (r-l)
 # x * y 
 
 
-
 from typing import List
-    
+
 
 def max_area(height: List[int]) -> int:
-    l, r = 0, len(height)-1
-    best = 0
-    # max_ind = [l,r] # if you want to return the indices of the max area
-    # and add logic for saving these indices in the loop
-
+    l=0
+    r=len(height)-1
+    max_ar = 0
+    max_id = []
+    
+    
     while l<r:
-        h = min(height[l], height[r])
-        new_area = h*(r-l)
-        # if new_area > best, update best and save indices
-        best = max(best, new_area)
+        ar = min(height[l],height[r]) * (r-l)
         
+        max_ar=max(max_ar, ar)
         
-        if height[l] < height[r]:
+        if height[l]<height[r]:
             l+=1
         else:
             r-=1
             
-    return best
-
+    return max_ar
+        
+    
+        
+        
+        
 max_area(h)
+max_area([1,8,6,2,5,4,8,3,7])  # 49 (1,8)
+max_area([1,8,6,2,5,4,18,3,7]) # 49 (1,8)
+max_area([1,18,6,2,5,18,3,7])  # 72 (1,5)
+max_area([1,1,1,1,1,1,1,1])    # 7  (0,7)
 
 
 
@@ -912,8 +986,9 @@ max_area(h)
 # 1. sort arr
 # 2. fix first number: at each i, treat arr[i] as the first number in the triplet
 #    The other two must sum to -nums[i]
-# 3. because the array is sorted, skip duplicate first elements
-# e.g. in  arr=[-2,0,0,2,2] search for triplets starting with [-2,0,2] 
+# 3. Duplicates: after sorting, equal values sit next to each other, so
+#   - skip i if nums[i] == nums[i-1] (same first number = same triplets)
+#   - after a hit, move l and r past copies of the values just used
 # 4. set up two pointers for the subarray to the right of i
 # 5. while l<r: compute sum of the three elements
 # - if sum==0, append new triplet, increase l,r counters BUT skip duplicates
@@ -936,65 +1011,57 @@ max_area(h)
 # land on equal values (1 and 1), so [-2,1,1] is found from i=0.
 # --- Complexity: --- O(n^2) time, O(1) extra space (besides the output)
 
-
-# Input: nums = [-1,0,1,2,-1,-4]
-# Output: [[-1,-1,2],[-1,0,1]]
-nums = [-1,0,1,2,-1,-4]
 nums = [-1,0,1,2,-1,-4, -4]
 nums = [-1,0,1,2,-1,-4]
-# Expected (order may vary): [[-1,-1,2], [-1,0,1]]
-nums = [] 
-# Expected: []
-nums = [0,0,0,0]
-# Expected: [[0,0,0]]   # only one unique triplet
-nums = [-2,0,1,1,2]
-# Expected (order may vary): [[-2,0,2], [-2,1,1]]
-
 # if we're skipping first duplicates, doesn't that mean we wouldn't catch -2,1,1?
 
         
 def three_sum(nums: List[int]) -> List[List[int]]:
-    nums.sort() 
-    n=len(nums)
-    trips = []
+    nums.sort()
+    trips=[]
+
     
-    for i in range(n-2):
+    for i in range(len(nums)-2):
         if i>0 and nums[i]==nums[i-1]:
             continue
-        
-        target=-nums[i]
-        l = i+1
-        r = n-1
-        
-        while l<r:
-            res = nums[i]+nums[l]+nums[r]
             
-            if res==0:
-                trips.append([nums[i],nums[l],nums[r]])
+        l=i+1
+        r=len(nums)-1
+        while l<r:
+            trip = (nums[i],nums[l],nums[r])
+            s = sum(trip)
+            if s==0:
+                trips.append(trip)
                 
                 l+=1
                 r-=1
+                
                 while l<r and nums[l]==nums[l-1]:
                     l+=1
                 while l<r and nums[r]==nums[r+1]:
                     r-=1
                 
-            
-            elif res<0:
+                
+            elif s<0:
                 l+=1
             else:
                 r-=1
-                
-    return trips
-        
-        
     
-
-# [0 1 2 3 4 5 6 7]
-
+    return trips
+                
+                
+        
     
 
 three_sum(nums)
+three_sum([-1,0,1,2,-1,-4])# [[-1,-1,2],[-1,0,1]]
+three_sum([])            # []
+three_sum([0,0,0,0])     # [[0,0,0]] 
+three_sum( [-2,0,1,1,2]) # [[-2,0,2], [-2,1,1]]
+three_sum( [-2,0,1,1,1,2])   # [[-2,0,2], [-2,1,1]]
+three_sum( [-2,0,1,1,1,2,2]) # [[-2,0,2], [-2,1,1]]
+
+
 #%% 4. 3Sum Closest ================================
 # ============================================================================
 # Modify to solve 3Sum Closest (find triplet sum closest to target). 
@@ -1039,22 +1106,33 @@ three_sum(nums)
 # 7. return best
 
 def three_sum_closest(nums: List[int], target: int) -> int:
-    nums.sort()
-    n = len(nums)
-    best = nums[0] + nums[1] + nums[2]
-    for i in range(n - 2):
-        l, r = i + 1, n - 1
-        while l < r:
-            s = nums[i] + nums[l] + nums[r]
-            if abs(s - target) < abs(best - target):
-                best = s
-            if s == target:
+    if len(nums)<3:
+        return None
+    
+    best=sum(nums[:3])
+    
+    for i in range(len(nums)-2):
+        l=i+1
+        r=len(nums)-1
+        
+        while l<r:
+            s = nums[i]+nums[l]+nums[r]
+            
+            if abs(s-target)<abs(best-target):
+                best=s
+            
+            if s==target:
                 return s
-            elif s < target:
-                l += 1
+            elif s<target:
+                l+=1
             else:
-                r -= 1
+                r-=1
+                
     return best
+        
+        
+                
+            
 
 assert three_sum_closest([-1,2,1,-4], 1) == 2
 assert three_sum_closest([0,0,0], 1) == 0
@@ -1097,31 +1175,7 @@ three_sum_closest([-1,2,1,-4], 1)
 # --- Complexity: --- O(n^3) time, O(1) extra space
 
 def four_sum(nums: List[int], target: int) -> List[List[int]]:
-    nums.sort()
-    n = len(nums)
-    quads = []
-    for i in range(n - 3):
-        if i > 0 and nums[i] == nums[i - 1]:
-            continue
-        for j in range(i + 1, n - 2):
-            if j > i + 1 and nums[j] == nums[j - 1]:
-                continue
-            l, r = j + 1, n - 1
-            while l < r:
-                s = nums[i] + nums[j] + nums[l] + nums[r]
-                if s == target:
-                    quads.append([nums[i], nums[j], nums[l], nums[r]])
-                    l += 1
-                    r -= 1
-                    while l < r and nums[l] == nums[l - 1]: # if l matches the previous element
-                        l += 1
-                    while l < r and nums[r] == nums[r + 1]: # same for right
-                        r -= 1
-                elif s < target:
-                    l += 1
-                else:
-                    r -= 1
-    return quads
+    ...
 
 assert four_sum([1,0,-1,0,-2,2], 0) == [[-2,-1,1,2], [-2,0,0,2], [-1,0,0,1]]
 assert four_sum([2,2,2,2,2], 8) == [[2,2,2,2]]
@@ -1167,46 +1221,15 @@ nums = [-3, -3, -2, -1, 0, 1, 2,2,2]
 # --- Complexity: --- O(n^(k-1)) time, O(k) recursion depth
 
 def two_sum_all(nums: List[int], target: int, start: int) -> List[List[int]]:
-    res = []
-    l, r = start, len(nums) - 1
-    while l < r:
-        s = nums[l] + nums[r]
-        if s == target:
-            res.append([nums[l], nums[r]])
-            l += 1
-            r -= 1
-            while l < r and nums[l] == nums[l - 1]:
-                l += 1
-            while l < r and nums[r] == nums[r + 1]:
-                r -= 1
-        elif s < target:
-            l += 1
-        else:
-            r -= 1
-    return res
+    ...
 
 
 def k_sum(nums: List[int], k: int, target: int, start: int = 0) -> List[List[int]]:
-    n = len(nums)
-    if n - start < k:
-        return []
-    if k * nums[start] > target or k * nums[-1] < target:   # pruning
-        return []
-    if k == 2:
-        return two_sum_all(nums, target, start)
-
-    res = []
-    for i in range(start, n - k + 1):
-        if i > start and nums[i] == nums[i - 1]:
-            continue
-        for tup in k_sum(nums, k - 1, target - nums[i], i + 1):
-            res.append([nums[i]] + tup)
-    return res
+    ...
 
 
 def four_sum_rec(nums: List[int], target: int) -> List[List[int]]:
-    nums.sort()
-    return k_sum(nums, 4, target)
+    ...
 
 assert four_sum_rec([1,0,-1,0,-2,2], 0) == [[-2,-1,1,2], [-2,0,0,2], [-1,0,0,1]]
 assert four_sum_rec([2,2,2,2,2], 8) == [[2,2,2,2]]

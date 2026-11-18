@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
+""" 2. Sliding window
 Created on Mon Feb 23 19:16:03 2026
 ____________________________________________
 When Should Your Brain Say "Sliding Window"?
@@ -16,20 +16,15 @@ If the data is contiguous and you're optimizing something over a range,
 sliding window is likely part of the solution.
 ______________
 Core Intuition
-Instead of:
-"Try every possible subarray" → O(n²)
-
-You:
-Expand right pointer to grow window
-Shrink left pointer when constraint breaks
-Maintain a valid window in O(n)
-Each index moves at most once → total O(n).
+Instead of trying every possible subarray  O(n^2):
+- move r forward to grow it
+- move l forward to shrink it when needed
+Each index enters once and leaves once, so the whole thing is O(n).
 
 @author: qq20468
-"""
-
 
 # Core template:
+# TYPE A — Fixed-size window (k=3)
 nums=[1,2,3,4]
 l=0
 window_invalid=True
@@ -43,12 +38,44 @@ for r in range(len(nums)):
         
     # 3. updatde answer using current window
     
-    
-#%% 1.Max sum subarray of size K
-# Given array nums and integer K, find the maximum sum of any contiguous
-# subarray of length K
+
+# Type B — Variable Size, longest valid window, At Most K 
+shrink while INVALID, then update
+l = 0
+k = 3
+n = len(nums)
+count = {}
+
+for r in range(n):
+    add s[r]
+
+    while window invalid:
+        remove s[l]
+        l += 1
+
+    best = max(best, r-l+1) # update_answer
+
+
+
+# Type C — Variable Size, Shortest Valid Window (Harder)
+l=0
+for r in range(n):
+    # expand
+    add s[r]
+
+    while window_valid:
+        best = min(best, r-l+1) # update_answer
+        remove s[l];            # shrink
+        l += 1
+
+"""
+
+#%% =============== 1. Max sum subarray of size k ===========================
+# ============================================================================
+# Given array nums and integer K, find the maximum sum
+# of any contiguous subarray of length K.
 # find the maximum sum of K consecutive elements
-import math
+
 # 1. maintain sum of current k elements
 # 2. when moving r forward by 1, add nums[r]
 # and subtract nums[r-k] (the element leaving the window)
@@ -60,51 +87,51 @@ import math
 # n      1 2 3 4 5
 # full window: when r>=k-1
 
-foo = "this is where practice starts"
+# 1. init max su  at neg inf
+# 2. init current window sum at 0
+# 3. fixed window: no need to track l
+# 4. add each r element to sum
+# 5. if we've passed  element k-1, window is full: update best and remove previous element
 
-"""
-1. init max su  at neg inf
-2. init current window sum at 0
-3. fixed window: no need to track l
-4. add each r element to sum
-5. if we've passed  element k-1, window is full: update best and remove previous element """
+import math
 
 def max_sum_sub_k(nums,k):
-    if k==0 or k>len(nums):
+    s=0
+    best=-math.inf
+    full_win = k-1
+
+    if k>len(nums) or k==0:
         return None
-        
-    wsum=0
-    best = -math.inf
     
     for r in range(len(nums)):
-        wsum+=nums[r]
+        s+=nums[r]
         
-        if r>=k-1:
-            best=max(best,wsum)
-            wsum-=nums[r-1]
+        if r>=full_win: # check for full window
+            best = max(s,best)
+            s-=nums[r-(k-1)] # remove leftmost item
             
+    print(best)
     return best
+            
+            
+max_sum_sub_k([1,2,3,4,5], 2)==9  # 9
+max_sum_sub_k([5,4,3,1,5], 2)==9  # 9
+max_sum_sub_k([-1,-2,-3],  2)==-3 # -3
+max_sum_sub_k([5], 1)==5          # 5
 
-
-
-
-
-#       0 1 2 3 4
-nums = [1,2,3,4,5]; k=2 # 9
-nums = [-1,-2,-3]; k=2  # -3
-nums=[5]; k=1 # 5
-
-max_sum_sub_k(nums, k)
-
-#%% 2. Longest substring without repeating characters 
-# Given string s, find length of longest substring that has 
-# no repeated chars. 
+#%% ====== 2. Longest substring without repeating characters ===============
+# ============================================================================
+# Given string s, return length of longest substring
+# with no repeated chars.  
 
 # 1. expand r adding characters to frequency map
 # 2. if adding s[r] makes window invalid (repeated char count>1),
 # move l forward removing characters until the window is valid again. 
 # 3. at each valid state, update best 
 
+# how do you know it's invalid? : freq[ch] > 1 
+# why does this work? because a) previous ch should all be <1 since we keep moving 
+# the window until this is true. 
 
 def longest_sub_unique_char(s):
     n = len(s)
@@ -115,6 +142,7 @@ def longest_sub_unique_char(s):
     for r,ch in enumerate(s):
         #                  key, default
         freq[ch] = freq.get(ch, 0) + 1
+        print(f"add   : {freq}")
         
         # shrink while invalid
         while freq[ch] >1:
@@ -123,37 +151,45 @@ def longest_sub_unique_char(s):
             
             if freq[left_ch]==0:
                 del freq[left_ch]
-                
+            print(f"remove: {freq}")
+
             l += 1
             
         
         best = max(best, r-l+1)
         
     return best
-        
+
 
 
 
 
 #  01234567
-s="abcabcbb" # 3 ( "abc" )
-s="bbbbb" # 1 ( "b" )
-s="pwwkew" # 3 
+# s="abcabcbb" # 3 ( "abc" )
 
-longest_sub_unique_char(s)
-        
-#%% Instead of counts,
-# store the last index of each char and jump 
-# l directly to last_index+1 when a repeat is seen
+longest_sub_unique_char("abcabcbb")==3 # 3 ( "abc" )
+longest_sub_unique_char("bbbbb")==1    # 1 ( "b" )
+longest_sub_unique_char("pwwkew")==3   # 3 wke
+longest_sub_unique_char("abba")==2     # 2 ab
+#%% ---------- 2b. Same problem, jump l with last-seen index -----------------
+# --- Idea: ---
+# Store the last index of each char. 
+# When you see a character ch at index r, 
+# if it was seen INSIDE the window (last[ch] >= l),
+# jump l straight to last[ch]+1 instead of stepping.
+# update last seen position for current ch, and update best.
+# The '>= l' check matters: an old index outside the window must not move l
+# backwards.
+# --- Example: --- "abba"
+# r=2 'b'  last[b]=1 >= l=0  -> l=2     window "b"
+# r=3 'a'  last[a]=0 <  l=2  -> ignore  window "ba", best 2
+#          (without the check, l would go BACK to 1: window "bba", wrong)
+# --- Complexity: --- O(n) time, O(alphabet) space
 
-# When you see a character ch at index r:
-# If you’ve seen ch before at index j
-# And j >= l (meaning it's inside the current window)
-# Then you must move l to j + 1
 
 # for each ch:
 # 1. check if it's seen before, and seen within the current window
-# 2. if seen within the current window, move window 1 step forward from this position
+# 2. if seen within the current window, move window 1 step forward from that position
 # 3. update last seen position for current ch
 # 4. update best
 
@@ -166,22 +202,23 @@ def longest_sub_unique_char(s):
     for r,ch in enumerate(s):
         if ch in last_seen and last_seen[ch]>= l:
             l = last_seen[ch]+1
+            print(f"{ch} in window")
+            print(f"move l   : {last_seen[ch]}")
             
         last_seen[ch] = r
+        print(f"update   : {last_seen}")
         best = max(best, r-l+1)
         
     return best
 
 
-s="abcabcbb" # 3 ( "abc" )
-s="bbbbb" # 1 ( "b" )
-s="pwwkew" # 3 
-#  012345
-# s="abba" # 2 
 
-longest_sub_unique_char(s)
-
-#%% 3. Longest repeating character replacement
+longest_sub_unique_char("abcabcbb")==3 # 3 ( "abc" )
+longest_sub_unique_char("bbbbb")==1    # 1 ( "b" )
+longest_sub_unique_char("pwwkew")==3   # 3 wke
+longest_sub_unique_char("abba")==2     # 2 ab
+#%% ========= 3. Longest repeating character replacement ====================
+# ============================================================================
 # Given string s and integer k, return len of longest
 # substring you can get by replacing k characters
 # so that all characters in the substring are the same.
@@ -199,6 +236,34 @@ longest_sub_unique_char(s)
 # - while replacements needed > k, shrink
 # - decrease count for every char leaving the window
 
+# --- Why is it fine that max_freq is never decreased? ---
+# When chars leave on the left, max_freq can become too big (stale), so the
+# current window may really be invalid. That never gives a wrong answer:
+# 1. The window never gets smaller. Each step adds 1 on the right and the
+#    while removes at most 1 on the left (you could write `if`). So the
+#    window's size is always the best length found so far.
+# 2. The window only GROWS when max_freq grows, and max_freq only grows
+#    when ch really has that many copies inside the current window. At that
+#    moment the window is truly valid, so the new best is real.
+# So a stale max_freq only lets an invalid window slide along at the OLD
+# best length. It can never create a new best. To beat best you need a
+# window with more copies of one char than ever before, which is exactly
+# when max_freq goes up.
+
+# --- Example: --- s="AABCBB", k=1
+#          window  max_freq  real max  best
+# r=0 A    A         1         1        1
+# r=1 A    AA        2         2        2
+# r=2 B    AAB       2         2        3    (replace B)
+# r=3 C    ABC       2         1        3    4-2>1 -> drop A. ABC needs 2
+#                                            replacements: INVALID, but its
+#                                            size is 3 = best, so no harm
+# r=4 B    BCB       2         2        3    drop A, valid again
+# r=5 B    BCBB      3         3        4    max_freq grows -> real new best
+
+
+# --- Complexity: --- O(n) time, O(alphabet) space
+
 def char_replacement(s, k):
     counts = {}
     max_freq = 0
@@ -209,96 +274,31 @@ def char_replacement(s, k):
         counts[ch] = counts.get(ch,0) + 1
         max_freq = max(max_freq, counts[ch]) # set max freq if count of char is better
         
-        while (r - l + 1) - max_freq > k:
+        # str_len = r-l+1
+        # need_to_replace = str_len - max_freq
+        # if need_to_replace > k, shrink
+        while (r-l+1)-max_freq>k:
             counts[s[l]] -= 1
+            # str_len = r-l+1
+            # need_to_replace = str_len - max_freq    
             l += 1
+            # decrease count for every char leaving the window
         
         best = max(best, (r-l+1))
         
     return best
 
 
-def char_replacement(s,k):
-    cnt = {}
-    maxfreq = 0
-    mfchar = ''
-    l=0
-    best = 0
-    
-    for r,ch in enumerate(s):
-        cnt[ch] = cnt.get(ch,0)+1
-        
-        if maxfreq<cnt[ch]:
-            mfchar=ch
-            print(f"MAX CHAR: {mfchar}:{cnt[ch]}")
-        elif maxfreq>=cnt[ch]:
-            print(f"MAX CHAR: {mfchar}:{maxfreq}")
-        
-        
-        maxfreq = max(maxfreq,cnt[ch])
-        # if this window is valid, this maxfreq will be used to 
-        # calculate best. 
-        # in fact, why is this also fine? 
-        
-        # str_len = r-l
-        # replacements_needed = (r-l+1) - maxfreq
-        
-        while (r - l + 1) - maxfreq > k:
-            cnt[s[l]]-=1
-            if cnt[s[l]]<0:
-                del(cnt[s[l]])
-            l+=1
-            # why is it not possible for maxfreq to be wrongly bigger
-            # if we are not updating it here???
-            
-        best = max(best, (r-l+1)) # this is a valid window
-        
-    return best
-            
-    
-# why is it not possible for maxfreq to be wrongly bigger?
-# At some point max_freq = 3 for "AABAB".
-# Later, after shrinking, the current window may no longer actually contain 3 of the same char.
-# But keeping max_freq = 3 is still fine, because the algorithm only needs it as a conservative guide for window size.
+          
+char_replacement("AABABBA",    k=1) # 4  (change one char to get "AABA" or "BABB")
+char_replacement("AAAA",       k=2) # 4
+char_replacement("ABAB",       k=2) # 4
+char_replacement("ABCD",       k=1) # 2
+char_replacement("abcabcbbef", k=2) # 5
 
-# TODO !!!!
-# STILL DON'Ŧ UNDERSTAND WHY THIS WORKS
-# WHY IS MAXFREQ NOT UPDATING NOT A PROBLEM?
 
-# let k=2 
-#    0 1 2 3 4 5 6 7 
-# s="a b c a b c b b" 
-# s="a b c b b b b b" 
-
-#    0 1 2 3 4 5 6 7 
-#      1     4        r-l+1 = 4
-# s="a b c a b c b b" 
-# s="a b b b b c b b" 
-#      -------
-
-#    0 1 2 3 4 5 6 7 
-#          3       7   r-l+1 = 5
-# s="a b c a b c b b" 
-# s="a b c b b b b b" 
-#          ---------
-
-#    0 1 2 3 4 5 6 7 
-#      1       5       r-l+1 = 5, max_freq=2, 5-2=3, 3>k
-#        2     5       r-l+1 = 4, max_freq=2, 4-2=2, 2!>k
-#        2       6     r-l+1 = 5, max_freq=2, 5-2=3, 3>k
-#          3     6     r-l+1 = 4, max_freq=2, 4-2=2, 2!>k
-#          3       7   r-l+1 = 5, max_freq=3, 5-3=2, 2!>k
-# s="a b c a b c b b" 
-
-s="AABABBA"; k=1 # 4 (change one char to get "AABA" or "BABB")
-# s="AAAA"; k=2 # 4
-# s="ABAB"; k=2 # 4
-# s="ABCD"; k=1 # 2
-s="abcabcbbef"; k=2
-
-char_replacement(s, k)
-
-#%% 4. Minimum size subarray sum
+#%% =============== 4. Minimum size subarray sum ============================
+# ============================================================================
 # Given array nums and integer target, 
 # return minimal length of cont subarray whose sum >=target
 
@@ -337,21 +337,19 @@ def min_subarray_len(nums, target):
             
 
 
-            
-
-nums=[2,3,1,2,4,3]; target=7 # 2 (subarray [4,3])
-nums=[1,1,1,1]; target=5 # 0 (none)
-nums=[5]; target=5 # 1
-nums=[2,1,6,5,4]; target=9 # 2 ( [6,5] )
-
-min_subarray_len(nums, target)
+min_subarray_len([2,3,1,2,4,3], 7) # 2 (subarray [4,3])
+min_subarray_len([1,1,1,1], 5)     # 0 (none)
+min_subarray_len([5], 5)           # 1
+min_subarray_len([2,1,6,5,4], 9)   # 2 ( [6,5] )
 
 
 
 #%% 5. Subarray product less than K
+# ============================================================================
 # given array nums of positive integers and integer k, 
 # return number of cont subarrays where product of 
 # all elements is < k
+# a product and sum is well defined for a single number. 
 
 # 1. init prod, count and l (not fixed window) 
 # 2. expand r, update prod by multiplying nums[r] 
@@ -364,6 +362,16 @@ min_subarray_len(nums, target)
 # and starts at any index i with l ≤ i ≤ r 
 # will have product < k
 
+# --- Example: ---
+#          [10,5,2,6], k=100
+# r=0      [10]          10           +1   [10]
+# r=1      [10,5]        50           +2   [5] [10,5]
+# r=2      [10,5,2]     100 -> drop 10
+#             [5,2]      10           +2   [2] [5,2]
+# r=3         [5,2,6]    60           +3   [6] [2,6] [5,2,6]
+#                               total: 8
+# --- Complexity: --- O(n) time, O(1) space
+
 def num_subarray_product(nums, k):
     prod = 1
     l = 0
@@ -373,70 +381,34 @@ def num_subarray_product(nums, k):
         prod *= val
         
         while prod >= k and l<=r:
-            prod = prod//nums[l]
+            prod /= nums[l]
             l += 1
         
         count += (r-l+1)
         
     return count
-
+ 
 
 nums = [1,3,6,2,4,1,3,5,2]
 k = 10
 
-# [0, 1, 2, 3, 4, 5, 6, 7, 8]
-# [1, 3, 6, 2, 4, 1, 3, 5, 2]
-#  1  3  18                     r-l+1=3
-#     3  18                     r-l+1=2
-#        6                      r-l+1=1
-#        6 12
-#           2
-#           2  8  8  24 
-#              4  4  12 
-#                 1  3 
-#                 1  3  15
-#                    3  15
-#                        5
-#                        5 10
-# [ ,  ,  , 2, 4, 1,  ,  ,  ]
-# [ ,  ,  , 2, 4, 1,  ,  ,  ]
-# [0, 1, 2, 3, 4, 5, 6, 7, 8]
+num_subarray_product([1,3,6,2,4,1,3,5,2], 10)
+num_subarray_product([10,5,2,6],  k=100)==8  # 8
+num_subarray_product([10,5,2,6,10], k=100)==8  # 10
+num_subarray_product([10,2,4,2,5], k=100)==8  # 13
+num_subarray_product([1,2,3], k=0 )==0  # (anything ≤1 or k ≤1 boundary)
+num_subarray_product([1,1,1], k=2 )==6  # 6 (all subarrays)
+num_subarray_product([3,2,5], k=5 )==3  # 2 ( [3], [2], [5] 
+num_subarray_product([3,2,5], k=10)==4  # 
 
-
-nums=[10,5,2,6]; k=100 # 8
-# nums=[1,2,3]; k=0 # 0 (anything ≤1 or k ≤1 boundary)
-# nums=[1,1,1]; k=2 # 6 (all subarrays)
-# nums=[3,2,5]; k=5 # 3 ( [3], [2], [5] )
-# nums=[3,2,5]; k=10 # 
-
-
-# nums=[10,5,2,6]; k=100
-# nums=[10,5,2,6,10]; k=100
-#    [10]
-#    [10,5]
-#    [   5]
-#    [   5,2  ]
-#    [     2  ]
-#    [   5,2,6]
-#    [     2,6]
-#    [       6]
-
-#      0 1 2 3 4  5  6  7 8 9 10
-# nums=[10,5,2,6,10,10,10,2,4,2,5]; k=100
-#    [10,5,2                   ] 6
-#    [   5,2,6                 ] 8
-#    [       6,10              ] 10  
-#    [               10,2,4    ] 1+2+3=6 # lr: 66,76,86
-#    [                  2,4,2,5] 3+4=7 lr: 97, 10-7    [2,4] [2,4,2], [4,2], [2], [4,2,5], [2,5], [5], [2,4,2,5]
-# r-l+1
-# 
-
-# nums=[10,2,4,2,5]; k=100
+nums=[10,5,2,6,10,10,10,2,4,2,5]; k=100
+num_subarray_product(nums,k)
 # nums=[10,5,2,6,10,104,104,104,10,2,4,2,5]; k=100
 
 num_subarray_product(nums, k)
 
-#%% 6. At most K distinct characters
+#%% ============ 6. Longest substring with at most k distinct ===============
+# ============================================================================
 # given string s and integer k, return len of the
 # longest substring with at most k distinct characters.
 
@@ -448,6 +420,8 @@ num_subarray_product(nums, k)
 # - delete chars with zero counts from dict (they contribute to len)
 # - increment l
 # 4. update best when valid
+
+# --- Complexity: --- O(n) time, O(k) space
 
 def longest_k_distinct(s, k):
     if k==0:
@@ -471,14 +445,140 @@ def longest_k_distinct(s, k):
     return best
 
 
-s = "aacvalbcbvvnxablsgeoph"
-s = "aacvalbcbvvv"
-#   "     lbcbvvv"
-#   "  cvalb    "
-k=1 # length 3, substring "vvv"
-k=2 # length 4, substring "bvvv"
-k=3 # length 6, substring "bcbvvv"
-k=4 # length 7, substring "lbcbvvv"
+longest_k_distinct("aacvalbcbvvv", k=1) # length 3, substring "vvv"
+longest_k_distinct("aacvalbcbvvv", k=2) # length 4, substring "bvvv"
+longest_k_distinct("aacvalbcbvvv", k=3) # length 6, substring "bcbvvv"
+longest_k_distinct("aacvalbcbvvv", k=4) # length 7, substring "lbcbvvv"
+longest_k_distinct("eceba", 2) == 3      
+longest_k_distinct("abc", 0) == 0
+
         
-longest_k_distinct(s, k)
+
+#%% 7. Minimum window substring
+# ============================================================================
+# Given string s and t, find the shortest contiguous substring of s 
+# that contains all characters of t. # return "" if no window exists. 
+
+# 1. init counts or count of chars still needed
+# 2. expand window right (move r) until all chars seen. 
+# 3. While all characters present:
+# - update best substring length
+# - remove char leaving the window
+# - move l forward
+# To use a single variable or dict,
+# simply go negative (= surplus). missing = total chars still needed,
+# counting duplicates; the window is valid when missing == 0.
+
+# The all(...) check runs over t’s distinct letters at every step, so it’s O(n·m) rather than O(n).
+
+from collections import Counter
+
+s="ADOBECODEBANC"; t="ABC" # "BANC"
+
+def shortestsubstring(s,t):
+    need = Counter(t)
+    l=0
+    minlen = math.inf
+    minstr = ""
+    
+    for r,ch in enumerate(s):
+        # if ch in need, decrease count
+        # print(f"{s[:r]}[{s[r]}]{s[(r+1):]}")
+        if ch in t:
+            need[ch] -= 1
+        print(f"{s[:r]}[{s[r]}]{s[(r+1):]} || {[k+':'+ str(v) for k,v in zip(need.keys(),need.values())]}")
         
+
+        while all(v <= 0 for v in need.values()) and l<=r:
+            print(f"got: {s[l:r+1]} || currlen: {r}-{l}+1 | {r-l+1}")
+            curr_len = r-l+1
+            # print(f"currlen: {r}-{l}+1 | {r-l+1}")
+            if curr_len<minlen:
+                print(f"new best: {s[l:r+1]}")
+                # print(f"new best: {r} {l} | {r-l+1}")
+                minlen = curr_len
+                minstr = s[l:r+1]
+                
+            if s[l] in t:
+                need[s[l]]+=1
+                print(f"{s[l+1:r+1]} || {[k+':'+ str(v) for k,v in zip(need.keys(),need.values())]}")
+            l+=1
+        
+    return minstr
+            
+
+shortestsubstring("ADOBEAD",  t="AB") # "BEA"
+shortestsubstring("ADOBECODEBANC",  t="ABC") # "BANC"
+shortestsubstring("ADOBECODEBANNC", t="ABC") # BANNC
+shortestsubstring("a",  t="aa")  # "" (not enough a's)
+shortestsubstring("a",  t="a") # "a" 
+shortestsubstring("ab", t="b") # "b"
+shortestsubstring("acbbaca", t="aba") # "baca"
+shortestsubstring("acbbaca", t="baca")
+shortestsubstring("acbbaca", t="")
+        
+
+#%% ====== Two-Dict version ==================================================
+# --- Idea: ---
+# Template C. need = Counter(t). have = counts of needed chars in the window.
+# formed = how many DISTINCT chars have have[ch] >= need[ch].
+# Window is valid when formed == len(need). Only change formed at the exact
+# moment a count crosses its need, in either direction.
+# --- Algorithm: ---
+# 1. need = Counter(t), have = {}, formed = 0, l = 0
+# 2. for r, ch:
+#      if ch in need: have[ch] += 1; if have[ch] == need[ch]: formed += 1
+#      while formed == len(need):
+#          record s[l:r+1] if shorter
+#          left = s[l]
+#          if left in need: have[left] -= 1; if have[left] < need[left]: formed -= 1
+#          l += 1
+# 3. return best substring
+# --- Example: --- s="acbbaca", t="aba"   need {a:2, b:1}
+#          a c b b a c a
+# r=4     [a c b b a]        a=2 b=2 valid -> "acbba" (5)
+#                            drop a -> a=1 < 2, invalid
+# r=6       [c b b a c a]    a=2 valid (6, not better)
+#                            drop c -> [b b a c a] (5)
+#                            drop b -> [b a c a]   (4) best "baca"
+#                            drop b -> b=0 < 1, invalid
+# answer "baca"
+# --- Complexity: --- O(|s| + |t|) time, O(|t|) space
+
+def min_window(s, t):
+    if not s or not t:
+        return ""
+    need = Counter(t)
+    have = {}
+    required = len(need)
+    formed = 0
+    l = 0
+    best = math.inf
+    bestsub = ""
+    for r, ch in enumerate(s):
+        if ch in need:
+            have[ch] = have.get(ch, 0) + 1
+            if have[ch] == need[ch]:
+                formed += 1
+        while formed == required:
+            if r - l + 1 < best:
+                best = r - l + 1
+                bestsub = s[l:r+1]
+            left = s[l]
+            if left in need:
+                have[left] -= 1
+                if have[left] < need[left]:
+                    formed -= 1
+            l += 1
+    return bestsub
+
+
+min_window("ADOBEAD",  t="AB") # "BEA"
+min_window("ADOBECODEBANC",  t="ABC") # "BANC"
+min_window("ADOBECODEBANNC", t="ABC") # BANNC
+min_window("a",  t="aa")  # "" (not enough a's)
+min_window("a",  t="a") # "a" 
+min_window("ab", t="b") # "b"
+min_window("acbbaca", t="aba") # "baca"
+min_window("acbbaca", t="baca")
+    

@@ -1489,4 +1489,12 @@ assert four_sum_rec([2,2,2,2,2], 8) == [[2,2,2,2]]
 assert four_sum_rec([-1,-1,1,1], 0) == [[-1,-1,1,1]]
 assert k_sum(sorted([-1,0,1,2,-1,-4]), 3, 0) == [[-1,-1,2], [-1,0,1]]   # 3Sum
 assert k_sum([], 2, 0) == []
-four_sum_rec([1,0,-1,0,-2,2], 0)
+four_sum_rec([1,0,-1,0,-2,2], 0) 
+
+
+
+
+# #%% TODO:
+#     1. I don't intuit why fast/right start from 0 and 1 in remove duplicates and move zeros (and the other problems)
+#     2. I don't intuit why remove all but 2 copies (sorted array) works 
+#     3. 
